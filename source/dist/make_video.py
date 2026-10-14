@@ -325,6 +325,7 @@ hook, whoosh, pop, chime, impact, riser, click, shimmer: সব numpy দিয�
 import numpy as np
 from scipy.signal import butter, lfilter
 import wave
+import math
 
 SR = 44100
 RNG = np.random.default_rng(7)
@@ -533,6 +534,90 @@ def build_sfx(timeline, path, prof=None):
                 tr.add(shimmer(1.2, 1318 * pt), it["t"] + 0.05, 0.10)
     tr.add(bell(1046.5 * pt, 2.2), timeline["duration"] - 1.5, 0.18)
     tr.save(path)
+
+
+# 48 theme-specific procedural BGM beds. Each profile controls genre/timbre, mode,
+# tempo, root, rhythm, brightness and seed; no two themes share a profile.
+def build_theme_bgm(duration, path, profile=None):
+    profile = profile or {}
+    n = int(float(duration) * SR)
+    if n <= 0: n = SR
+    t = np.arange(n, dtype=np.float64) / SR
+    seed = int(profile.get("seed", 1))
+    rng = np.random.default_rng(seed)
+    genre = str(profile.get("genre", "piano"))
+    mode = str(profile.get("mode", "major"))
+    tempo = float(profile.get("tempo", 90))
+    root = float(profile.get("root", 130.81))
+    bright = float(profile.get("brightness", .5))
+    rhythm = str(profile.get("rhythm", "pulse"))
+    scale_map = {
+        "major": [0,2,4,5,7,9,11], "minor": [0,2,3,5,7,8,10],
+        "dorian": [0,2,3,5,7,9,10], "pentatonic": [0,2,4,7,9],
+        "lydian": [0,2,4,6,7,9,11], "mixolydian": [0,2,4,5,7,9,10]
+    }
+    scale = scale_map.get(mode, scale_map["major"])
+    out = np.zeros(n, dtype=np.float64)
+    beat = 60.0 / max(40, tempo)
+    # genre-specific envelope/timbre: intentionally different sound families
+    timbre = {
+      "piano": (1,.34,.12,3.8), "marimba": (1,.22,.04,7.0), "analog_pad": (.65,.22,.28,1.8),
+      "plucked": (1,.14,.03,5.5), "bell": (1,.38,.16,4.2), "strings": (.7,.32,.10,1.5),
+      "guitar": (1,.22,.06,3.2), "mallet": (1,.28,.08,6.2), "synth_bass": (.6,.35,.04,2.2),
+      "kalimba": (1,.35,.06,8.0), "organ": (.7,.28,.14,1.0), "choir_pad": (.5,.3,.2,1.2),
+      "muted_guitar": (1,.12,.03,4.4), "harp": (1,.3,.07,3.6), "soft_brass": (.7,.32,.1,1.4),
+      "glass_pad": (.7,.4,.22,2.5), "handpan": (1,.25,.05,3.8), "woodblock": (1,.08,.01,10.0),
+      "rhodes": (.8,.3,.14,2.3), "celesta": (1,.4,.1,5.8), "qanun_like": (1,.3,.05,6.0),
+      "flute_pad": (.55,.15,.18,1.1), "bass_pulse": (.5,.25,.03,2.0), "arp_synth": (.8,.4,.12,2.6)
+    }
+    attack, h2, h3, decay = timbre.get(genre, timbre["piano"])
+    # soft low drone/pad, with different harmonic color per theme
+    base_phase = rng.uniform(0, 2*np.pi)
+    pad = (np.sin(2*np.pi*root*t + base_phase) + h2*np.sin(2*np.pi*root*1.5*t) + h3*np.sin(2*np.pi*root*2*t))
+    pad_env = .5 + .5*np.sin(2*np.pi*t/max(4.0, beat*16) + base_phase)
+    out += pad * pad_env * (0.045 + .035*bright)
+    # Genre-dependent rhythmic motifs, with distinct note order and spacing
+    step = beat * ({"drone":4,"pulse":1,"syncopated":.75,"arpeggio":.5,"waltz":2/3,"ostinato":.5}.get(rhythm,1))
+    total_steps = int(math.ceil(float(duration)/step))
+    note_order = list(range(len(scale)))
+    rng.shuffle(note_order)
+    for j in range(total_steps):
+        at = j*step
+        if at >= duration: break
+        degree = note_order[j % len(note_order)]
+        octave = 1 if (j//len(note_order))%2==0 else 2
+        if rhythm == "drone": octave=1
+        freq = root * (2 ** ((scale[degree] + 12*(octave-1))/12))
+        length = min(float(duration)-at, max(.12, step*({"drone":1.7,"pulse":.7,"syncopated":.42,"arpeggio":.42,"waltz":.8,"ostinato":.36}.get(rhythm,.7))))
+        count = int(length*SR)
+        if count < 2: continue
+        tt = np.arange(count)/SR
+        env = np.exp(-tt*decay) if genre not in ("analog_pad","strings","choir_pad","glass_pad","flute_pad","organ") else np.minimum(1,tt*8)*np.exp(-tt*max(.45,decay*.45))
+        phase = rng.uniform(0,2*np.pi)
+        wave1 = np.sin(2*np.pi*freq*tt+phase)
+        if genre in ("analog_pad","synth_bass","arp_synth"):
+            wave1 = .65*wave1 + .2*np.sin(2*np.pi*freq*1.01*tt) + .15*np.sin(2*np.pi*freq*2*tt)
+        elif genre in ("woodblock","handpan","marimba","kalimba","celesta","bell","mallet"):
+            wave1 = wave1 + .35*np.sin(2*np.pi*freq*2.7*tt)*np.exp(-tt*8)
+        seg = wave1*env*(.09 + .035*bright)
+        start = int(at*SR); end = min(n,start+len(seg))
+        out[start:end] += seg[:end-start]
+    # Gentle filtered noise texture only for selected cinematic/ambient genres
+    if genre in ("glass_pad","choir_pad","flute_pad","analog_pad","strings"):
+        noise = rng.normal(0,1,n)
+        smooth = np.convolve(noise, np.ones(256)/256, mode='same')
+        out += smooth*(.012 + .01*bright)
+    # fades and conservative peak to keep narration intelligible
+    fade_n = min(int(1.8*SR), n//3)
+    if fade_n:
+        out[:fade_n] *= np.linspace(0,1,fade_n)
+        out[-fade_n:] *= np.linspace(1,0,fade_n)
+    peak = np.max(np.abs(out)) or 1
+    out = out / peak * .24
+    pcm = (out*32767).astype('<i2')
+    import wave as _wave
+    with _wave.open(path,'wb') as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes(pcm.tobytes())
 ''',
     'themes.json': r'''{
   "order": [
@@ -559,7 +644,31 @@ def build_sfx(timeline, path, prof=None):
     "royalblue",
     "retro",
     "minimal",
-    "cosmic"
+    "cosmic",
+    "museum",
+    "vaporwave",
+    "kintsugi",
+    "bauhaus",
+    "noir",
+    "botanical",
+    "liquid",
+    "sports",
+    "craft",
+    "terminal",
+    "mediterranean",
+    "glacier",
+    "comic",
+    "watercolor",
+    "industrial",
+    "desertnight",
+    "festival",
+    "organic",
+    "monsoon",
+    "spaceage",
+    "heritage",
+    "streetart",
+    "zen",
+    "synthwave"
   ],
   "themes": {
     "royal": {
@@ -622,6 +731,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 1.0,
         "bright": 1.0,
         "sub": 1.0
+      },
+      "bgm": {
+        "genre": "harp",
+        "mode": "major",
+        "tempo": 60,
+        "root": 98,
+        "rhythm": "drone",
+        "brightness": 0.12,
+        "seed": 100
       }
     },
     "midnight": {
@@ -683,6 +801,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 0.86,
         "bright": 0.8,
         "sub": 1.3
+      },
+      "bgm": {
+        "genre": "analog_pad",
+        "mode": "minor",
+        "tempo": 68,
+        "root": 110,
+        "rhythm": "pulse",
+        "brightness": 0.23,
+        "seed": 101
       }
     },
     "emerald": {
@@ -745,6 +872,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 0.95,
         "bright": 0.9,
         "sub": 1.1
+      },
+      "bgm": {
+        "genre": "plucked",
+        "mode": "dorian",
+        "tempo": 76,
+        "root": 123.47,
+        "rhythm": "syncopated",
+        "brightness": 0.34,
+        "seed": 102
       }
     },
     "sunrise": {
@@ -807,6 +943,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 1.12,
         "bright": 1.1,
         "sub": 0.9
+      },
+      "bgm": {
+        "genre": "piano",
+        "mode": "pentatonic",
+        "tempo": 88,
+        "root": 130.81,
+        "rhythm": "arpeggio",
+        "brightness": 0.45,
+        "seed": 103
       }
     },
     "rose": {
@@ -870,6 +1015,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 1.2,
         "bright": 1.2,
         "sub": 0.6
+      },
+      "bgm": {
+        "genre": "strings",
+        "mode": "lydian",
+        "tempo": 94,
+        "root": 146.83,
+        "rhythm": "waltz",
+        "brightness": 0.56,
+        "seed": 104
       }
     },
     "ocean": {
@@ -931,6 +1085,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 1.05,
         "bright": 1.0,
         "sub": 0.9
+      },
+      "bgm": {
+        "genre": "marimba",
+        "mode": "mixolydian",
+        "tempo": 102,
+        "root": 164.81,
+        "rhythm": "ostinato",
+        "brightness": 0.67,
+        "seed": 105
       }
     },
     "crimson": {
@@ -993,6 +1156,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 0.8,
         "bright": 0.7,
         "sub": 1.6
+      },
+      "bgm": {
+        "genre": "flute_pad",
+        "mode": "major",
+        "tempo": 112,
+        "root": 174.61,
+        "rhythm": "drone",
+        "brightness": 0.78,
+        "seed": 106
       }
     },
     "neon": {
@@ -1055,6 +1227,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 1.25,
         "bright": 1.3,
         "sub": 1.2
+      },
+      "bgm": {
+        "genre": "rhodes",
+        "mode": "minor",
+        "tempo": 120,
+        "root": 196,
+        "rhythm": "pulse",
+        "brightness": 0.89,
+        "seed": 107
       }
     },
     "mono": {
@@ -1116,6 +1297,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 0.92,
         "bright": 0.9,
         "sub": 1.0
+      },
+      "bgm": {
+        "genre": "celesta",
+        "mode": "dorian",
+        "tempo": 132,
+        "root": 220,
+        "rhythm": "syncopated",
+        "brightness": 0.12,
+        "seed": 108
       }
     },
     "lavender": {
@@ -1177,6 +1367,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 1.1,
         "bright": 1.15,
         "sub": 0.7
+      },
+      "bgm": {
+        "genre": "qanun_like",
+        "mode": "pentatonic",
+        "tempo": 144,
+        "root": 246.94,
+        "rhythm": "arpeggio",
+        "brightness": 0.23,
+        "seed": 109
       }
     },
     "luxe": {
@@ -1239,6 +1438,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 0.9,
         "bright": 1.0,
         "sub": 1.2
+      },
+      "bgm": {
+        "genre": "soft_brass",
+        "mode": "lydian",
+        "tempo": 80,
+        "root": 261.63,
+        "rhythm": "waltz",
+        "brightness": 0.34,
+        "seed": 110
       }
     },
     "sand": {
@@ -1301,6 +1509,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 0.98,
         "bright": 0.85,
         "sub": 1.0
+      },
+      "bgm": {
+        "genre": "handpan",
+        "mode": "mixolydian",
+        "tempo": 100,
+        "root": 293.66,
+        "rhythm": "ostinato",
+        "brightness": 0.45,
+        "seed": 111
       }
     },
     "editorial": {
@@ -1364,6 +1581,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 1.0,
         "bright": 1.0,
         "sub": 1.0
+      },
+      "bgm": {
+        "genre": "muted_guitar",
+        "mode": "major",
+        "tempo": 60,
+        "root": 98,
+        "rhythm": "drone",
+        "brightness": 0.56,
+        "seed": 112
       }
     },
     "cyberpunk": {
@@ -1427,6 +1653,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 1.0,
         "bright": 1.0,
         "sub": 1.0
+      },
+      "bgm": {
+        "genre": "choir_pad",
+        "mode": "minor",
+        "tempo": 68,
+        "root": 110,
+        "rhythm": "pulse",
+        "brightness": 0.67,
+        "seed": 113
       }
     },
     "forest": {
@@ -1490,6 +1725,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 1.0,
         "bright": 1.0,
         "sub": 1.0
+      },
+      "bgm": {
+        "genre": "glass_pad",
+        "mode": "dorian",
+        "tempo": 76,
+        "root": 123.47,
+        "rhythm": "syncopated",
+        "brightness": 0.78,
+        "seed": 114
       }
     },
     "blueprint": {
@@ -1553,6 +1797,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 1.0,
         "bright": 1.0,
         "sub": 1.0
+      },
+      "bgm": {
+        "genre": "kalimba",
+        "mode": "pentatonic",
+        "tempo": 88,
+        "root": 130.81,
+        "rhythm": "arpeggio",
+        "brightness": 0.89,
+        "seed": 115
       }
     },
     "candy": {
@@ -1615,6 +1868,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 1.0,
         "bright": 1.0,
         "sub": 1.0
+      },
+      "bgm": {
+        "genre": "organ",
+        "mode": "lydian",
+        "tempo": 94,
+        "root": 146.83,
+        "rhythm": "waltz",
+        "brightness": 0.12,
+        "seed": 116
       }
     },
     "volcanic": {
@@ -1678,6 +1940,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 1.0,
         "bright": 1.0,
         "sub": 1.0
+      },
+      "bgm": {
+        "genre": "bass_pulse",
+        "mode": "mixolydian",
+        "tempo": 102,
+        "root": 164.81,
+        "rhythm": "ostinato",
+        "brightness": 0.23,
+        "seed": 117
       }
     },
     "arctic": {
@@ -1741,6 +2012,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 1.0,
         "bright": 1.0,
         "sub": 1.0
+      },
+      "bgm": {
+        "genre": "arp_synth",
+        "mode": "major",
+        "tempo": 112,
+        "root": 174.61,
+        "rhythm": "drone",
+        "brightness": 0.34,
+        "seed": 118
       }
     },
     "newspaper": {
@@ -1804,6 +2084,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 1.0,
         "bright": 1.0,
         "sub": 1.0
+      },
+      "bgm": {
+        "genre": "guitar",
+        "mode": "minor",
+        "tempo": 120,
+        "root": 196,
+        "rhythm": "pulse",
+        "brightness": 0.45,
+        "seed": 119
       }
     },
     "royalblue": {
@@ -1867,6 +2156,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 1.0,
         "bright": 1.0,
         "sub": 1.0
+      },
+      "bgm": {
+        "genre": "woodblock",
+        "mode": "dorian",
+        "tempo": 132,
+        "root": 220,
+        "rhythm": "syncopated",
+        "brightness": 0.56,
+        "seed": 120
       }
     },
     "retro": {
@@ -1930,6 +2228,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 1.0,
         "bright": 1.0,
         "sub": 1.0
+      },
+      "bgm": {
+        "genre": "bell",
+        "mode": "pentatonic",
+        "tempo": 144,
+        "root": 246.94,
+        "rhythm": "arpeggio",
+        "brightness": 0.67,
+        "seed": 121
       }
     },
     "minimal": {
@@ -1992,6 +2299,15 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 1.0,
         "bright": 1.0,
         "sub": 1.0
+      },
+      "bgm": {
+        "genre": "synth_bass",
+        "mode": "lydian",
+        "tempo": 80,
+        "root": 261.63,
+        "rhythm": "waltz",
+        "brightness": 0.78,
+        "seed": 122
       }
     },
     "cosmic": {
@@ -2055,6 +2371,1623 @@ def build_sfx(timeline, path, prof=None):
         "pitch": 1.0,
         "bright": 1.0,
         "sub": 1.0
+      },
+      "bgm": {
+        "genre": "mallet",
+        "mode": "mixolydian",
+        "tempo": 100,
+        "root": 293.66,
+        "rhythm": "ostinato",
+        "brightness": 0.89,
+        "seed": 123
+      }
+    },
+    "museum": {
+      "name": "Museum Gallery",
+      "bn": "Museum Gallery",
+      "dark": false,
+      "c": {
+        "bg": [
+          "#f1eee6",
+          "#dddbd4",
+          "#c4c3bf"
+        ],
+        "ink": "#262b33",
+        "sub": "#5e6c78",
+        "accent": "#b08d57",
+        "accentL": "#ccb592",
+        "accentD": "#8e744e",
+        "accent2": "#5e6c78",
+        "onAccent": "#262b33",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "241,238,230",
+        "glow": "176,141,87",
+        "vig": "0,0,0",
+        "palette": [
+          "#b08d57",
+          "#5e6c78",
+          "#c4aa81",
+          "#7e8993",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Playfair Display",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "none",
+        "frame": "double",
+        "orn": "leaf",
+        "chip": "glass",
+        "rule": "line",
+        "rays": "none",
+        "particles": "none",
+        "arch": "arch",
+        "upper": true,
+        "ls": 0.1,
+        "motion": "slow",
+        "spot": true
+      },
+      "sfx": {
+        "pitch": 0.72,
+        "bright": 0.65,
+        "sub": 0.65
+      },
+      "bgm": {
+        "genre": "piano",
+        "mode": "major",
+        "tempo": 62,
+        "root": 110,
+        "rhythm": "drone",
+        "brightness": 0.15,
+        "seed": 200
+      }
+    },
+    "vaporwave": {
+      "name": "Vaporwave Sunset",
+      "bn": "Vaporwave Sunset",
+      "dark": true,
+      "c": {
+        "bg": [
+          "#211a4c",
+          "#372f5d",
+          "#524972"
+        ],
+        "ink": "#fff0f7",
+        "sub": "#49e6ff",
+        "accent": "#ff6ac1",
+        "accentL": "#ff9ed7",
+        "accentD": "#ff8cce",
+        "accent2": "#49e6ff",
+        "onAccent": "#fff0f7",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "33,26,76",
+        "glow": "255,106,193",
+        "vig": "0,0,0",
+        "palette": [
+          "#ff6ac1",
+          "#49e6ff",
+          "#ff8fd0",
+          "#6debff",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Space Grotesk",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "aurora",
+        "frame": "neon",
+        "orn": "diamond",
+        "chip": "outline",
+        "rule": "orn",
+        "rays": "rings",
+        "particles": "spark",
+        "arch": "circle",
+        "upper": false,
+        "ls": 0.23,
+        "motion": "float",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 0.795,
+        "bright": 0.77,
+        "sub": 0.78
+      },
+      "bgm": {
+        "genre": "marimba",
+        "mode": "dorian",
+        "tempo": 72,
+        "root": 123.47,
+        "rhythm": "pulse",
+        "brightness": 0.27,
+        "seed": 201
+      }
+    },
+    "kintsugi": {
+      "name": "Kintsugi Gold",
+      "bn": "Kintsugi Gold",
+      "dark": true,
+      "c": {
+        "bg": [
+          "#171717",
+          "#2d2c29",
+          "#48463f"
+        ],
+        "ink": "#f7edcf",
+        "sub": "#a33e35",
+        "accent": "#d6ae4a",
+        "accentL": "#e4ca89",
+        "accentD": "#debe6b",
+        "accent2": "#a33e35",
+        "onAccent": "#f7edcf",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "23,23,23",
+        "glow": "214,174,74",
+        "vig": "0,0,0",
+        "palette": [
+          "#d6ae4a",
+          "#a33e35",
+          "#e0c277",
+          "#b5655d",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Playfair Display",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "deco",
+        "frame": "deco",
+        "orn": "plus",
+        "chip": "tag",
+        "rule": "bar",
+        "rays": "none",
+        "particles": "spark",
+        "arch": "arch",
+        "upper": true,
+        "ls": 0.36,
+        "motion": "smooth",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 0.87,
+        "bright": 0.89,
+        "sub": 0.91
+      },
+      "bgm": {
+        "genre": "analog_pad",
+        "mode": "pentatonic",
+        "tempo": 84,
+        "root": 130.81,
+        "rhythm": "syncopated",
+        "brightness": 0.39,
+        "seed": 202
+      }
+    },
+    "bauhaus": {
+      "name": "Bauhaus Geometry",
+      "bn": "Bauhaus Geometry",
+      "dark": false,
+      "c": {
+        "bg": [
+          "#f5f0e5",
+          "#dfdad0",
+          "#c4c0b7"
+        ],
+        "ink": "#161616",
+        "sub": "#1d4ed8",
+        "accent": "#e33e2b",
+        "accentL": "#ed8275",
+        "accentD": "#b03426",
+        "accent2": "#1d4ed8",
+        "onAccent": "#161616",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "245,240,229",
+        "glow": "227,62,43",
+        "vig": "0,0,0",
+        "palette": [
+          "#e33e2b",
+          "#1d4ed8",
+          "#ea6e60",
+          "#4a71e0",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Space Grotesk",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "grid",
+        "frame": "bar",
+        "orn": "spark",
+        "chip": "block",
+        "rule": "dots",
+        "rays": "none",
+        "particles": "square",
+        "arch": "rect",
+        "upper": false,
+        "ls": 0.49,
+        "motion": "snappy",
+        "spot": true
+      },
+      "sfx": {
+        "pitch": 0.945,
+        "bright": 1.01,
+        "sub": 1.04
+      },
+      "bgm": {
+        "genre": "plucked",
+        "mode": "minor",
+        "tempo": 96,
+        "root": 146.83,
+        "rhythm": "arpeggio",
+        "brightness": 0.51,
+        "seed": 203
+      }
+    },
+    "noir": {
+      "name": "Film Noir",
+      "bn": "Film Noir",
+      "dark": true,
+      "c": {
+        "bg": [
+          "#17191d",
+          "#2d2e31",
+          "#474849"
+        ],
+        "ink": "#f3eee5",
+        "sub": "#8b949e",
+        "accent": "#d6d0c4",
+        "accentL": "#e4e0d9",
+        "accentD": "#ddd8cc",
+        "accent2": "#8b949e",
+        "onAccent": "#f3eee5",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "23,25,29",
+        "glow": "214,208,196",
+        "vig": "0,0,0",
+        "palette": [
+          "#d6d0c4",
+          "#8b949e",
+          "#e0dcd3",
+          "#a2a9b1",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Playfair Display",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "grain",
+        "frame": "plain",
+        "orn": "circle",
+        "chip": "pill",
+        "rule": "line",
+        "rays": "none",
+        "particles": "none",
+        "arch": "rect",
+        "upper": true,
+        "ls": 0.62,
+        "motion": "slow",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 1.02,
+        "bright": 1.13,
+        "sub": 1.17
+      },
+      "bgm": {
+        "genre": "bell",
+        "mode": "lydian",
+        "tempo": 108,
+        "root": 164.81,
+        "rhythm": "waltz",
+        "brightness": 0.63,
+        "seed": 204
+      }
+    },
+    "botanical": {
+      "name": "Botanical Press",
+      "bn": "Botanical Press",
+      "dark": false,
+      "c": {
+        "bg": [
+          "#e8efdf",
+          "#d4dece",
+          "#bdc9b9"
+        ],
+        "ink": "#244333",
+        "sub": "#c58b62",
+        "accent": "#668b54",
+        "accentL": "#9cb490",
+        "accentD": "#56794c",
+        "accent2": "#c58b62",
+        "onAccent": "#244333",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "232,239,223",
+        "glow": "102,139,84",
+        "vig": "0,0,0",
+        "palette": [
+          "#668b54",
+          "#c58b62",
+          "#8ca87f",
+          "#d1a281",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Playfair Display",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "topo",
+        "frame": "arch",
+        "orn": "tri",
+        "chip": "glass",
+        "rule": "orn",
+        "rays": "none",
+        "particles": "leaf",
+        "arch": "oval",
+        "upper": false,
+        "ls": 0.75,
+        "motion": "float",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 1.095,
+        "bright": 1.25,
+        "sub": 1.3
+      },
+      "bgm": {
+        "genre": "strings",
+        "mode": "mixolydian",
+        "tempo": 118,
+        "root": 174.61,
+        "rhythm": "ostinato",
+        "brightness": 0.75,
+        "seed": 205
+      }
+    },
+    "liquid": {
+      "name": "Liquid Chrome",
+      "bn": "Liquid Chrome",
+      "dark": true,
+      "c": {
+        "bg": [
+          "#101a23",
+          "#263039",
+          "#404b53"
+        ],
+        "ink": "#e8f8ff",
+        "sub": "#9a8cff",
+        "accent": "#6fe7f5",
+        "accentL": "#a1eff8",
+        "accentD": "#8debf8",
+        "accent2": "#9a8cff",
+        "onAccent": "#e8f8ff",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "16,26,35",
+        "glow": "111,231,245",
+        "vig": "0,0,0",
+        "palette": [
+          "#6fe7f5",
+          "#9a8cff",
+          "#93edf8",
+          "#aea3ff",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Space Grotesk",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "waves",
+        "frame": "double",
+        "orn": "leaf",
+        "chip": "glass",
+        "rule": "bar",
+        "rays": "rings",
+        "particles": "bubble",
+        "arch": "oval",
+        "upper": true,
+        "ls": 0.88,
+        "motion": "float",
+        "spot": true
+      },
+      "sfx": {
+        "pitch": 1.17,
+        "bright": 1.37,
+        "sub": 1.43
+      },
+      "bgm": {
+        "genre": "guitar",
+        "mode": "major",
+        "tempo": 126,
+        "root": 196,
+        "rhythm": "drone",
+        "brightness": 0.87,
+        "seed": 206
+      }
+    },
+    "sports": {
+      "name": "Stadium Energy",
+      "bn": "Stadium Energy",
+      "dark": true,
+      "c": {
+        "bg": [
+          "#101c2e",
+          "#283343",
+          "#454e5c"
+        ],
+        "ink": "#ffffff",
+        "sub": "#ffd43b",
+        "accent": "#ff4b32",
+        "accentL": "#ff8a7a",
+        "accentD": "#ff7865",
+        "accent2": "#ffd43b",
+        "onAccent": "#ffffff",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "16,28,46",
+        "glow": "255,75,50",
+        "vig": "0,0,0",
+        "palette": [
+          "#ff4b32",
+          "#ffd43b",
+          "#ff7865",
+          "#ffdd62",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Space Grotesk",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "stripes",
+        "frame": "bar",
+        "orn": "diamond",
+        "chip": "outline",
+        "rule": "dots",
+        "rays": "conic",
+        "particles": "ember",
+        "arch": "rect",
+        "upper": false,
+        "ls": 1.01,
+        "motion": "snappy",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 1.245,
+        "bright": 1.49,
+        "sub": 1.56
+      },
+      "bgm": {
+        "genre": "mallet",
+        "mode": "dorian",
+        "tempo": 138,
+        "root": 220,
+        "rhythm": "pulse",
+        "brightness": 0.15,
+        "seed": 207
+      }
+    },
+    "craft": {
+      "name": "Handcrafted Paper",
+      "bn": "Handcrafted Paper",
+      "dark": false,
+      "c": {
+        "bg": [
+          "#efe0c4",
+          "#decfb5",
+          "#cabba2"
+        ],
+        "ink": "#49382a",
+        "sub": "#6c8061",
+        "accent": "#b45b3b",
+        "accentL": "#ce9480",
+        "accentD": "#995237",
+        "accent2": "#6c8061",
+        "onAccent": "#49382a",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "239,224,196",
+        "glow": "180,91,59",
+        "vig": "0,0,0",
+        "palette": [
+          "#b45b3b",
+          "#6c8061",
+          "#c7846c",
+          "#899981",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Playfair Display",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "paper",
+        "frame": "ticket",
+        "orn": "plus",
+        "chip": "tag",
+        "rule": "line",
+        "rays": "none",
+        "particles": "dot",
+        "arch": "arch",
+        "upper": true,
+        "ls": 1.14,
+        "motion": "smooth",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 1.32,
+        "bright": 0.65,
+        "sub": 1.69
+      },
+      "bgm": {
+        "genre": "synth_bass",
+        "mode": "pentatonic",
+        "tempo": 62,
+        "root": 110,
+        "rhythm": "syncopated",
+        "brightness": 0.27,
+        "seed": 208
+      }
+    },
+    "terminal": {
+      "name": "Terminal Green",
+      "bn": "Terminal Green",
+      "dark": true,
+      "c": {
+        "bg": [
+          "#07130e",
+          "#182b21",
+          "#2d4739"
+        ],
+        "ink": "#b5ffd0",
+        "sub": "#9effd4",
+        "accent": "#52ff9a",
+        "accentL": "#8fffbd",
+        "accentD": "#6bffa8",
+        "accent2": "#9effd4",
+        "onAccent": "#b5ffd0",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "7,19,14",
+        "glow": "82,255,154",
+        "vig": "0,0,0",
+        "palette": [
+          "#52ff9a",
+          "#9effd4",
+          "#7dffb3",
+          "#b1ffdd",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "IBM Plex Mono",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "scan",
+        "frame": "brackets",
+        "orn": "spark",
+        "chip": "block",
+        "rule": "orn",
+        "rays": "rings",
+        "particles": "square",
+        "arch": "rect",
+        "upper": false,
+        "ls": 1.27,
+        "motion": "snappy",
+        "spot": true
+      },
+      "sfx": {
+        "pitch": 1.395,
+        "bright": 0.77,
+        "sub": 0.65
+      },
+      "bgm": {
+        "genre": "kalimba",
+        "mode": "minor",
+        "tempo": 72,
+        "root": 123.47,
+        "rhythm": "arpeggio",
+        "brightness": 0.39,
+        "seed": 209
+      }
+    },
+    "mediterranean": {
+      "name": "Mediterranean Tile",
+      "bn": "Mediterranean Tile",
+      "dark": false,
+      "c": {
+        "bg": [
+          "#f7f0df",
+          "#e2e0d3",
+          "#c8cdc5"
+        ],
+        "ink": "#214f68",
+        "sub": "#e5a94b",
+        "accent": "#167f92",
+        "accentL": "#68acb8",
+        "accentD": "#197388",
+        "accent2": "#e5a94b",
+        "onAccent": "#214f68",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "247,240,223",
+        "glow": "22,127,146",
+        "vig": "0,0,0",
+        "palette": [
+          "#167f92",
+          "#e5a94b",
+          "#509fad",
+          "#eaba6f",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Playfair Display",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "tile",
+        "frame": "deco",
+        "orn": "circle",
+        "chip": "pill",
+        "rule": "bar",
+        "rays": "none",
+        "particles": "dot",
+        "arch": "arch",
+        "upper": true,
+        "ls": 0.1,
+        "motion": "smooth",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 1.47,
+        "bright": 0.89,
+        "sub": 0.78
+      },
+      "bgm": {
+        "genre": "organ",
+        "mode": "lydian",
+        "tempo": 84,
+        "root": 130.81,
+        "rhythm": "waltz",
+        "brightness": 0.51,
+        "seed": 210
+      }
+    },
+    "glacier": {
+      "name": "Glacier Expedition",
+      "bn": "Glacier Expedition",
+      "dark": false,
+      "c": {
+        "bg": [
+          "#e6f4fa",
+          "#d1e2e9",
+          "#b8cbd5"
+        ],
+        "ink": "#163b52",
+        "sub": "#b5e7ee",
+        "accent": "#62b7d4",
+        "accentL": "#99d0e3",
+        "accentD": "#4f98b4",
+        "accent2": "#b5e7ee",
+        "onAccent": "#163b52",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "230,244,250",
+        "glow": "98,183,212",
+        "vig": "0,0,0",
+        "palette": [
+          "#62b7d4",
+          "#b5e7ee",
+          "#89c9df",
+          "#c4ecf1",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Space Grotesk",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "crystal",
+        "frame": "double",
+        "orn": "tri",
+        "chip": "glass",
+        "rule": "dots",
+        "rays": "rings",
+        "particles": "snow",
+        "arch": "oval",
+        "upper": false,
+        "ls": 0.23,
+        "motion": "float",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 1.545,
+        "bright": 1.01,
+        "sub": 0.91
+      },
+      "bgm": {
+        "genre": "choir_pad",
+        "mode": "mixolydian",
+        "tempo": 96,
+        "root": 146.83,
+        "rhythm": "ostinato",
+        "brightness": 0.63,
+        "seed": 211
+      }
+    },
+    "comic": {
+      "name": "Comic Book Pop",
+      "bn": "Comic Book Pop",
+      "dark": false,
+      "c": {
+        "bg": [
+          "#fff1c2",
+          "#e8dbb1",
+          "#ccc19c"
+        ],
+        "ink": "#171717",
+        "sub": "#2764d8",
+        "accent": "#ed334e",
+        "accentL": "#f37a8c",
+        "accentD": "#b82c40",
+        "accent2": "#2764d8",
+        "onAccent": "#171717",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "255,241,194",
+        "glow": "237,51,78",
+        "vig": "0,0,0",
+        "palette": [
+          "#ed334e",
+          "#2764d8",
+          "#f2667a",
+          "#5283e0",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Space Grotesk",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "halftone",
+        "frame": "bar",
+        "orn": "leaf",
+        "chip": "glass",
+        "rule": "line",
+        "rays": "conic",
+        "particles": "star",
+        "arch": "burst",
+        "upper": true,
+        "ls": 0.36,
+        "motion": "snappy",
+        "spot": true
+      },
+      "sfx": {
+        "pitch": 0.72,
+        "bright": 1.13,
+        "sub": 1.04
+      },
+      "bgm": {
+        "genre": "muted_guitar",
+        "mode": "major",
+        "tempo": 108,
+        "root": 164.81,
+        "rhythm": "drone",
+        "brightness": 0.75,
+        "seed": 212
+      }
+    },
+    "watercolor": {
+      "name": "Watercolor Calm",
+      "bn": "Watercolor Calm",
+      "dark": false,
+      "c": {
+        "bg": [
+          "#f2e9e7",
+          "#e2d9d9",
+          "#cfc6c9"
+        ],
+        "ink": "#51485e",
+        "sub": "#7faeae",
+        "accent": "#b88fbb",
+        "accentL": "#d1b6d3",
+        "accentD": "#9e7da4",
+        "accent2": "#7faeae",
+        "onAccent": "#51485e",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "242,233,231",
+        "glow": "184,143,187",
+        "vig": "0,0,0",
+        "palette": [
+          "#b88fbb",
+          "#7faeae",
+          "#caabcc",
+          "#99bebe",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Playfair Display",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "wash",
+        "frame": "none",
+        "orn": "diamond",
+        "chip": "outline",
+        "rule": "orn",
+        "rays": "none",
+        "particles": "bubble",
+        "arch": "oval",
+        "upper": false,
+        "ls": 0.49,
+        "motion": "float",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 0.795,
+        "bright": 1.25,
+        "sub": 1.17
+      },
+      "bgm": {
+        "genre": "harp",
+        "mode": "dorian",
+        "tempo": 118,
+        "root": 174.61,
+        "rhythm": "pulse",
+        "brightness": 0.87,
+        "seed": 213
+      }
+    },
+    "industrial": {
+      "name": "Industrial Steel",
+      "bn": "Industrial Steel",
+      "dark": true,
+      "c": {
+        "bg": [
+          "#252b30",
+          "#393f42",
+          "#525659"
+        ],
+        "ink": "#f0f0e9",
+        "sub": "#8b9aa5",
+        "accent": "#e7a52b",
+        "accentL": "#efc475",
+        "accentD": "#e9b85a",
+        "accent2": "#8b9aa5",
+        "onAccent": "#f0f0e9",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "37,43,48",
+        "glow": "231,165,43",
+        "vig": "0,0,0",
+        "palette": [
+          "#e7a52b",
+          "#8b9aa5",
+          "#edbc60",
+          "#a2aeb7",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "IBM Plex Mono",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "metal",
+        "frame": "brackets",
+        "orn": "plus",
+        "chip": "tag",
+        "rule": "bar",
+        "rays": "none",
+        "particles": "square",
+        "arch": "rect",
+        "upper": true,
+        "ls": 0.62,
+        "motion": "snappy",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 0.87,
+        "bright": 1.37,
+        "sub": 1.3
+      },
+      "bgm": {
+        "genre": "soft_brass",
+        "mode": "pentatonic",
+        "tempo": 126,
+        "root": 196,
+        "rhythm": "syncopated",
+        "brightness": 0.15,
+        "seed": 214
+      }
+    },
+    "desertnight": {
+      "name": "Desert Night",
+      "bn": "Desert Night",
+      "dark": true,
+      "c": {
+        "bg": [
+          "#211d37",
+          "#373246",
+          "#524b59"
+        ],
+        "ink": "#fff0d0",
+        "sub": "#c96b55",
+        "accent": "#e6a65d",
+        "accentL": "#efc596",
+        "accentD": "#ecb87a",
+        "accent2": "#c96b55",
+        "onAccent": "#fff0d0",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "33,29,55",
+        "glow": "230,166,93",
+        "vig": "0,0,0",
+        "palette": [
+          "#e6a65d",
+          "#c96b55",
+          "#ecbc86",
+          "#d48977",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Playfair Display",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "stars",
+        "frame": "arch",
+        "orn": "spark",
+        "chip": "block",
+        "rule": "dots",
+        "rays": "rings",
+        "particles": "spark",
+        "arch": "arch",
+        "upper": false,
+        "ls": 0.75,
+        "motion": "slow",
+        "spot": true
+      },
+      "sfx": {
+        "pitch": 0.945,
+        "bright": 1.49,
+        "sub": 1.43
+      },
+      "bgm": {
+        "genre": "glass_pad",
+        "mode": "minor",
+        "tempo": 138,
+        "root": 220,
+        "rhythm": "arpeggio",
+        "brightness": 0.27,
+        "seed": 215
+      }
+    },
+    "festival": {
+      "name": "Festival Lights",
+      "bn": "Festival Lights",
+      "dark": true,
+      "c": {
+        "bg": [
+          "#251046",
+          "#3b2756",
+          "#554369"
+        ],
+        "ink": "#fff6e5",
+        "sub": "#ff4f9a",
+        "accent": "#ffcf4a",
+        "accentL": "#ffe089",
+        "accentD": "#ffd971",
+        "accent2": "#ff4f9a",
+        "onAccent": "#fff6e5",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "37,16,70",
+        "glow": "255,207,74",
+        "vig": "0,0,0",
+        "palette": [
+          "#ffcf4a",
+          "#ff4f9a",
+          "#ffdb77",
+          "#ff72ae",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Space Grotesk",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "confetti",
+        "frame": "ticket",
+        "orn": "circle",
+        "chip": "pill",
+        "rule": "line",
+        "rays": "conic",
+        "particles": "spark",
+        "arch": "circle",
+        "upper": true,
+        "ls": 0.88,
+        "motion": "snappy",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 1.02,
+        "bright": 0.65,
+        "sub": 1.56
+      },
+      "bgm": {
+        "genre": "handpan",
+        "mode": "lydian",
+        "tempo": 62,
+        "root": 110,
+        "rhythm": "waltz",
+        "brightness": 0.39,
+        "seed": 216
+      }
+    },
+    "organic": {
+      "name": "Organic Shapes",
+      "bn": "Organic Shapes",
+      "dark": false,
+      "c": {
+        "bg": [
+          "#f3e9d7",
+          "#e1dac8",
+          "#cbc8b7"
+        ],
+        "ink": "#3d5144",
+        "sub": "#8aa66b",
+        "accent": "#e28c61",
+        "accentL": "#ecb498",
+        "accentD": "#b97d5a",
+        "accent2": "#8aa66b",
+        "onAccent": "#3d5144",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "243,233,215",
+        "glow": "226,140,97",
+        "vig": "0,0,0",
+        "palette": [
+          "#e28c61",
+          "#8aa66b",
+          "#e9a988",
+          "#a1b889",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "DM Sans",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "blobs",
+        "frame": "round",
+        "orn": "tri",
+        "chip": "glass",
+        "rule": "orn",
+        "rays": "none",
+        "particles": "bubble",
+        "arch": "oval",
+        "upper": false,
+        "ls": 1.01,
+        "motion": "float",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 1.095,
+        "bright": 0.77,
+        "sub": 1.69
+      },
+      "bgm": {
+        "genre": "woodblock",
+        "mode": "mixolydian",
+        "tempo": 72,
+        "root": 123.47,
+        "rhythm": "ostinato",
+        "brightness": 0.51,
+        "seed": 217
+      }
+    },
+    "monsoon": {
+      "name": "Monsoon Rain",
+      "bn": "Monsoon Rain",
+      "dark": true,
+      "c": {
+        "bg": [
+          "#122c3a",
+          "#27404d",
+          "#3f5864"
+        ],
+        "ink": "#e0f4f8",
+        "sub": "#9ba9dc",
+        "accent": "#69c5d8",
+        "accentL": "#9ed9e6",
+        "accentD": "#87d1e0",
+        "accent2": "#9ba9dc",
+        "onAccent": "#e0f4f8",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "18,44,58",
+        "glow": "105,197,216",
+        "vig": "0,0,0",
+        "palette": [
+          "#69c5d8",
+          "#9ba9dc",
+          "#8ed4e2",
+          "#afbae3",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Playfair Display",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "rain",
+        "frame": "double",
+        "orn": "leaf",
+        "chip": "glass",
+        "rule": "bar",
+        "rays": "rings",
+        "particles": "drop",
+        "arch": "oval",
+        "upper": true,
+        "ls": 1.14,
+        "motion": "smooth",
+        "spot": true
+      },
+      "sfx": {
+        "pitch": 1.17,
+        "bright": 0.89,
+        "sub": 0.65
+      },
+      "bgm": {
+        "genre": "rhodes",
+        "mode": "major",
+        "tempo": 84,
+        "root": 130.81,
+        "rhythm": "drone",
+        "brightness": 0.63,
+        "seed": 218
+      }
+    },
+    "spaceage": {
+      "name": "Space Age",
+      "bn": "Space Age",
+      "dark": true,
+      "c": {
+        "bg": [
+          "#11152c",
+          "#262b41",
+          "#40455a"
+        ],
+        "ink": "#e5f1ff",
+        "sub": "#6e8dff",
+        "accent": "#ff6d91",
+        "accentL": "#ffa0b8",
+        "accentD": "#f88eac",
+        "accent2": "#6e8dff",
+        "onAccent": "#e5f1ff",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "17,21,44",
+        "glow": "255,109,145",
+        "vig": "0,0,0",
+        "palette": [
+          "#ff6d91",
+          "#6e8dff",
+          "#ff92ac",
+          "#8ba4ff",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Space Grotesk",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "orbit",
+        "frame": "neon",
+        "orn": "diamond",
+        "chip": "outline",
+        "rule": "dots",
+        "rays": "rings",
+        "particles": "star",
+        "arch": "circle",
+        "upper": false,
+        "ls": 1.27,
+        "motion": "snappy",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 1.245,
+        "bright": 1.01,
+        "sub": 0.78
+      },
+      "bgm": {
+        "genre": "celesta",
+        "mode": "dorian",
+        "tempo": 96,
+        "root": 146.83,
+        "rhythm": "pulse",
+        "brightness": 0.75,
+        "seed": 219
+      }
+    },
+    "heritage": {
+      "name": "Heritage Archive",
+      "bn": "Heritage Archive",
+      "dark": false,
+      "c": {
+        "bg": [
+          "#e8d8b5",
+          "#d7c7a7",
+          "#c2b395"
+        ],
+        "ink": "#3c3025",
+        "sub": "#61704e",
+        "accent": "#a34f35",
+        "accentL": "#c38d7c",
+        "accentD": "#894731",
+        "accent2": "#61704e",
+        "onAccent": "#3c3025",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "232,216,181",
+        "glow": "163,79,53",
+        "vig": "0,0,0",
+        "palette": [
+          "#a34f35",
+          "#61704e",
+          "#ba7b68",
+          "#818d71",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Playfair Display",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "engrave",
+        "frame": "deco",
+        "orn": "plus",
+        "chip": "tag",
+        "rule": "line",
+        "rays": "none",
+        "particles": "diamond",
+        "arch": "arch",
+        "upper": true,
+        "ls": 0.1,
+        "motion": "slow",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 1.32,
+        "bright": 1.13,
+        "sub": 0.91
+      },
+      "bgm": {
+        "genre": "qanun_like",
+        "mode": "pentatonic",
+        "tempo": 108,
+        "root": 164.81,
+        "rhythm": "syncopated",
+        "brightness": 0.87,
+        "seed": 220
+      }
+    },
+    "streetart": {
+      "name": "Street Art",
+      "bn": "Street Art",
+      "dark": false,
+      "c": {
+        "bg": [
+          "#f6f0e7",
+          "#e0dad2",
+          "#c5c1ba"
+        ],
+        "ink": "#191919",
+        "sub": "#2b59c3",
+        "accent": "#f04438",
+        "accentL": "#f5857e",
+        "accentD": "#ba3930",
+        "accent2": "#2b59c3",
+        "onAccent": "#191919",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "246,240,231",
+        "glow": "240,68,56",
+        "vig": "0,0,0",
+        "palette": [
+          "#f04438",
+          "#2b59c3",
+          "#f4736a",
+          "#557acf",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Space Grotesk",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "spray",
+        "frame": "bar",
+        "orn": "spark",
+        "chip": "block",
+        "rule": "orn",
+        "rays": "conic",
+        "particles": "dot",
+        "arch": "rect",
+        "upper": false,
+        "ls": 0.23,
+        "motion": "snappy",
+        "spot": true
+      },
+      "sfx": {
+        "pitch": 1.395,
+        "bright": 1.25,
+        "sub": 1.04
+      },
+      "bgm": {
+        "genre": "flute_pad",
+        "mode": "minor",
+        "tempo": 118,
+        "root": 174.61,
+        "rhythm": "arpeggio",
+        "brightness": 0.15,
+        "seed": 221
+      }
+    },
+    "zen": {
+      "name": "Zen Minimal",
+      "bn": "Zen Minimal",
+      "dark": false,
+      "c": {
+        "bg": [
+          "#e9e4d9",
+          "#d8d5ca",
+          "#c3c2b8"
+        ],
+        "ink": "#3e4943",
+        "sub": "#c49d79",
+        "accent": "#7b8f7b",
+        "accentL": "#a9b6a9",
+        "accentD": "#6c7e6d",
+        "accent2": "#c49d79",
+        "onAccent": "#3e4943",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "233,228,217",
+        "glow": "123,143,123",
+        "vig": "0,0,0",
+        "palette": [
+          "#7b8f7b",
+          "#c49d79",
+          "#9cab9c",
+          "#d0b194",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Playfair Display",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "enso",
+        "frame": "none",
+        "orn": "circle",
+        "chip": "pill",
+        "rule": "bar",
+        "rays": "none",
+        "particles": "none",
+        "arch": "circle",
+        "upper": true,
+        "ls": 0.36,
+        "motion": "slow",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 1.47,
+        "bright": 1.37,
+        "sub": 1.17
+      },
+      "bgm": {
+        "genre": "bass_pulse",
+        "mode": "lydian",
+        "tempo": 126,
+        "root": 196,
+        "rhythm": "waltz",
+        "brightness": 0.27,
+        "seed": 222
+      }
+    },
+    "synthwave": {
+      "name": "Synthwave Drive",
+      "bn": "Synthwave Drive",
+      "dark": true,
+      "c": {
+        "bg": [
+          "#160f35",
+          "#2d2649",
+          "#494061"
+        ],
+        "ink": "#fff0fc",
+        "sub": "#41d9ff",
+        "accent": "#f64fc7",
+        "accentL": "#f98ddb",
+        "accentD": "#f877d4",
+        "accent2": "#41d9ff",
+        "onAccent": "#fff0fc",
+        "chip": "rgba(255,255,255,0.16)",
+        "halo": "22,15,53",
+        "glow": "246,79,199",
+        "vig": "0,0,0",
+        "palette": [
+          "#f64fc7",
+          "#41d9ff",
+          "#f87bd5",
+          "#67e1ff",
+          "#d9a441",
+          "#5e7890"
+        ]
+      },
+      "font": {
+        "display": "Space Grotesk",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": []
+      },
+      "style": {
+        "pattern": "sunsetgrid",
+        "frame": "neon",
+        "orn": "tri",
+        "chip": "glass",
+        "rule": "dots",
+        "rays": "rings",
+        "particles": "square",
+        "arch": "circle",
+        "upper": false,
+        "ls": 0.49,
+        "motion": "snappy",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 1.545,
+        "bright": 1.49,
+        "sub": 1.3
+      },
+      "bgm": {
+        "genre": "arp_synth",
+        "mode": "mixolydian",
+        "tempo": 138,
+        "root": 220,
+        "rhythm": "ostinato",
+        "brightness": 0.39,
+        "seed": 223
       }
     }
   },
@@ -2122,8 +4055,7 @@ def build_sfx(timeline, path, prof=None):
       "16x9"
     ]
   }
-}
-''',
+}''',
     'site/index.html': r'''<!doctype html>
 <html lang="bn">
 <head>
@@ -2356,9 +4288,9 @@ window.RT = {};
       // Landscape captions are bottom-anchored inside the canvas, never outside it.
       // Keep a responsive footer-safe margin and scale the caption box with output height.
       capH: Math.min(190, Math.max(104, H * 0.145)),
-      capTop: H - Math.min(190, Math.max(104, H * 0.145)) - Math.max(82, H * 0.075),
+      capTop: H - Math.min(190, Math.max(104, H * 0.145)) - Math.max(140, H * 0.18),
       capFont: Math.min(lk(46, 54), H * 0.042),
-      capW: Math.min(W * 0.84, 1640), brandY: H - Math.max(54, H * 0.05),
+      capW: Math.min(W * 0.84, 1640), brandY: H - Math.max(100, H * 0.14),
       compact: true,
     });
   }
@@ -4201,7 +6133,13 @@ def main():
         if not a.still:
             print(f"সাউন্ড ইফেক্ট বানানো হচ্ছে ({tid}) ...")
             sfx.build_sfx(tl, sfx_wav, th.get("sfx"))
-            mix_audio(audio, sfx_wav, bgm, tl["duration"], float(cfg.get("bgmVolume", 0.16)), mix)
+            theme_bgm = os.path.join(build, f"bgm_{tid}.wav")
+            if th.get("bgm"):
+                sfx.build_theme_bgm(tl["duration"], theme_bgm, th.get("bgm"))
+                selected_bgm = theme_bgm
+            else:
+                selected_bgm = bgm
+            mix_audio(audio, sfx_wav, selected_bgm, tl["duration"], float(cfg.get("bgmVolume", 0.16)), mix)
 
         for ratio in ratios:
             R = THEMES["ratios"][ratio]
