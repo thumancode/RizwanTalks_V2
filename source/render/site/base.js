@@ -152,9 +152,9 @@ window.RT = {};
       // Landscape captions are bottom-anchored inside the canvas, never outside it.
       // Keep a responsive footer-safe margin and scale the caption box with output height.
       capH: Math.min(190, Math.max(104, H * 0.145)),
-      capTop: H - Math.min(190, Math.max(104, H * 0.145)) - Math.max(82, H * 0.075),
+      capTop: H - Math.min(190, Math.max(104, H * 0.145)) - Math.max(140, H * 0.18),
       capFont: Math.min(lk(46, 54), H * 0.042),
-      capW: Math.min(W * 0.84, 1640), brandY: H - Math.max(54, H * 0.05),
+      capW: Math.min(W * 0.84, 1640), brandY: H - Math.max(100, H * 0.14),
       compact: true,
     });
   }
