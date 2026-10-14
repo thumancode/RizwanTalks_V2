@@ -260,9 +260,21 @@ def font_links(th):
 
 
 # --------------------------------------------------------------------------- ছবি প্রস্তুত
+def _extent(mask):
+    """মাস্ক (true = ছবির দৃশ্যমান অংশ) থেকে ওপর-নিচের পরিসর, ছবির উচ্চতার ভগ্নাংশে [0..1]।"""
+    import numpy as np
+
+    rows = np.where(mask.sum(axis=1) > max(2, mask.shape[1] * 0.004))[0]
+    if len(rows) < 2:
+        return [0.0, 1.0]
+    h = mask.shape[0]
+    return [round(float(rows[0]) / h, 4), round(float(rows[-1] + 1) / h, 4)]
+
+
 def prep_image(src, dst):
-    """ছবির ধরন বুঝে সংরক্ষণ করে। ফেরত: (kind, w, h)
-    kind = alpha (স্বচ্ছ PNG) | white (সাদা/হালকা ব্যাকগ্রাউন্ডের প্রোডাক্ট) | photo (সাধারণ ছবি)।"""
+    """ছবির ধরন বুঝে সংরক্ষণ করে। ফেরত: (kind, w, h, ext)
+    kind = alpha (স্বচ্ছ PNG) | white (সাদা/হালকা ব্যাকগ্রাউন্ডের প্রোডাক্ট) | photo (সাধারণ ছবি)।
+    ext = ছবির দৃশ্যমান অংশের [ওপর, নিচ] (উচ্চতার ভগ্নাংশ)। ল্যান্ডস্কেপে ছবি ক্যাপশনের ওপর আঁটাতে লাগে।"""
     import numpy as np
     from PIL import Image
 
@@ -274,7 +286,7 @@ def prep_image(src, dst):
         a = np.asarray(im.split()[-1])
         if (a < 250).mean() > 0.03:
             im.save(dst)
-            return "alpha", w, h
+            return "alpha", w, h, _extent(a > 40)
         im = im.convert("RGB")
     arr = np.asarray(im).astype("float32")
     b = max(4, min(h, w) // 100)
@@ -283,13 +295,14 @@ def prep_image(src, dst):
         wp = np.clip(np.percentile(ring, 8, axis=0), 190, 255)
         out = np.clip(arr * (255.0 / wp), 0, 255).astype("uint8")
         Image.fromarray(out).save(dst)
-        return "white", w, h
+        dev = 255.0 - out.astype("float32").min(axis=2)
+        return "white", w, h, _extent(dev > 45)
     # সাধারণ ছবি: বড় হলে ছোট করে নিই (ভিডিওতে ১২০০px-ই যথেষ্ট)
     if max(w, h) > 1800:
         r = 1800 / max(w, h)
         im = im.resize((int(w * r), int(h * r)), Image.LANCZOS)
     im.convert("RGB").save(dst)
-    return "photo", im.size[0], im.size[1]
+    return "photo", im.size[0], im.size[1], [0.0, 1.0]
 
 
 # --------------------------------------------------------------------------- রেন্ডার
@@ -464,8 +477,8 @@ def main():
     prepped = []
     for i, src in enumerate(images):
         dst = os.path.join(build, f"hero{i}.png")
-        kind, w, h = prep_image(src, dst)
-        prepped.append({"src": f"hero{i}.png", "kind": kind, "w": w, "h": h, "name": os.path.basename(src)})
+        kind, w, h, ext = prep_image(src, dst)
+        prepped.append({"src": f"hero{i}.png", "kind": kind, "w": w, "h": h, "ext": ext, "name": os.path.basename(src)})
         print(f"ছবি {os.path.basename(src)}: ধরন = {kind}")
     logo_name = None
     if logo:
@@ -497,7 +510,7 @@ def main():
             mode = imode
             if mode == "auto":
                 mode = {"alpha": "cutout", "white": "spot" if th["dark"] else "blend", "photo": "card"}[p["kind"]]
-            heroes.append({"src": p["src"], "mode": mode, "w": p["w"], "h": p["h"], "name": p["name"]})
+            heroes.append({"src": p["src"], "mode": mode, "w": p["w"], "h": p["h"], "ext": p["ext"], "name": p["name"]})
         if not a.still:
             print(f"সাউন্ড ইফেক্ট বানানো হচ্ছে ({tid}) ...")
             sfx.build_sfx(tl, sfx_wav, th.get("sfx"))
