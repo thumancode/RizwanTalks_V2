@@ -151,10 +151,10 @@ window.RT = {};
       ts: lk(1.1, 1.2), hs: 0.74, hdr: 60, cTop: 290, cBot: 800, cy: 552,
       // Landscape captions are bottom-anchored inside the canvas, never outside it.
       // Keep a responsive footer-safe margin and scale the caption box with output height.
-      capH: Math.min(190, Math.max(104, H * 0.145)),
-      capTop: H - Math.min(190, Math.max(104, H * 0.145)) - Math.max(140, H * 0.18),
+      capH: Math.min(156, Math.max(92, H * 0.125)),
+      capTop: H - Math.min(156, Math.max(92, H * 0.125)) - Math.max(118, H * 0.155),
       capFont: Math.min(lk(46, 54), H * 0.042),
-      capW: Math.min(W * 0.84, 1640), brandY: H - Math.max(100, H * 0.14),
+      capW: Math.min(W * 0.84, 1640), brandY: H - Math.max(112, H * 0.155),
       compact: true,
     });
   }
@@ -165,7 +165,7 @@ window.RT = {};
   // ---------- হিরো (প্রোডাক্ট / টপিক ছবি) অবস্থা, সিন অনুযায়ী ----------
   // fx, fy = ক্যানভাসের অনুপাত; s = আকার (hero unit দিয়ে গুণ হবে)
   const HS = {
-    intro: [0.5, 0.443, 1.0], title: [0.5, 0.547, 0.78], blend: [0.5, 0.471, 0.72], traits: [0.5, 0.471, 0.86], notes: [0.5, 0.471, 0.86],
+    intro: [0.5, 0.405, 0.76], title: [0.5, 0.547, 0.78], blend: [0.5, 0.471, 0.72], traits: [0.5, 0.471, 0.86], notes: [0.5, 0.471, 0.86],
     family: [0.5, 0.471, 0.5], character: [0.5, 0.609, 0.5], occasions: [0.79, 0.417, 0.6], cta: [0.5, 0.435, 0.8], statement: [0.5, 0.521, 0.7],
     headline: [0.5, 0.64, 0.62], stat: [0.5, 0.64, 0.36], quote: [0.5, 0.66, 0.5], steps: [0.5, 0.66, 0.5], compare: [0.5, 0.66, 0.5],
   };
