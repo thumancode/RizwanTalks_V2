@@ -1,1 +1,187 @@
-
+{
+  "brand": "Rizwan Talks",
+  "presenter": "Rizwan Talks",
+  "productName": "Digital Bangladesh",
+  "productSubtitle": "Tech Update",
+  "website": "youtube.com/@RizwanTalks",
+  "tagline": "আজকের টপিক",
+  "sync": "srt",
+  "bgmVolume": 0.16,
+  "audio": "WhiteOud.wav",
+  "srt": "WhiteOud.srt",
+  "image": "WhiteOud.webp",
+  "scenes": [
+    {
+      "type": "intro"
+    },
+    {
+      "type": "headline",
+      "start": {
+        "text": "আজকে কথা"
+      },
+      "kicker": "ব্রেকিং নিউজ",
+      "text": "বাংলাদেশে ডিজিটাল পেমেন্ট ব্যবহার রেকর্ড ছাড়িয়েছে",
+      "source": "সূত্র: বাংলাদেশ ব্যাংক • অক্টোবর ২০২৬"
+    },
+    {
+      "type": "stat",
+      "start": {
+        "text": "যেটার মধ্যে"
+      },
+      "revealAt": {
+        "text": "ফ্রেশনেস্"
+      },
+      "value": "৭২%",
+      "label": "মানুষ এখন অনলাইনে কেনাকাটা করেন",
+      "sub": "গত বছরের চেয়ে ১৮% বেশি"
+    },
+    {
+      "type": "quote",
+      "start": {
+        "text": "প্রোডাক্টটির নাম"
+      },
+      "text": "প্রযুক্তি তখনই সার্থক, যখন তা সাধারণ মানুষের জীবন সহজ করে",
+      "author": "রিজওয়ান",
+      "role": "টেক ক্রিয়েটর"
+    },
+    {
+      "type": "steps",
+      "start": {
+        "text": "এর ঘ্রাণের শুরুতে"
+      },
+      "heading": "How It Works",
+      "bn": "তিন ধাপে সহজ",
+      "items": [
+        {
+          "label": "অ্যাকাউন্ট খুলুন",
+          "text": "মোবাইল নম্বর দিয়ে",
+          "bn": "ফ্রেশ"
+        },
+        {
+          "label": "টাকা যোগ করুন",
+          "text": "ব্যাংক বা কার্ড থেকে",
+          "bn": "সাইট্রাস"
+        },
+        {
+          "label": "পেমেন্ট করুন",
+          "text": "QR স্ক্যান করে",
+          "bn": "জাফরানের"
+        }
+      ]
+    },
+    {
+      "type": "compare",
+      "start": {
+        "text": "এরপর কোমল"
+      },
+      "heading": "Online vs Offline",
+      "bn": "কোনটা এগিয়ে?",
+      "items": [
+        {
+          "label": "অনলাইন",
+          "value": "৭২%",
+          "text": "ঘরে বসেই কেনাকাটা\nদ্রুত ডেলিভারি",
+          "bn": "ফুলের"
+        },
+        {
+          "label": "অফলাইন",
+          "value": "২৮%",
+          "text": "হাতে ধরে দেখা\nসাথে সাথে পাওয়া",
+          "bn": "ক্রিমি"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "start": {
+        "text": "আর শেষের দিকে"
+      },
+      "heading": "Top Benefits",
+      "bn": "সুবিধাগুলো",
+      "items": [
+        {
+          "label": "সময় বাঁচে",
+          "bn": "অ্যাম্বার"
+        },
+        {
+          "label": "নিরাপদ লেনদেন",
+          "bn": "ভ্যানিলা"
+        },
+        {
+          "label": "২৪/৭ সেবা",
+          "bn": "স্মুথ"
+        }
+      ]
+    },
+    {
+      "type": "family",
+      "start": {
+        "text": "তৈরি করে"
+      },
+      "heading": "Our Platforms",
+      "bn": "যেখানে পাবেন",
+      "items": [
+        {
+          "label": "Facebook",
+          "color": "#1877f2"
+        },
+        {
+          "label": "YouTube",
+          "color": "#e11d48"
+        },
+        {
+          "label": "Website",
+          "color": "#10b981"
+        },
+        {
+          "label": "TikTok",
+          "color": "#8b5cf6"
+        }
+      ]
+    },
+    {
+      "type": "character",
+      "start": {
+        "text": "আপনি যদি"
+      },
+      "heading": "The Future",
+      "bn": "ভবিষ্যৎ কেমন?",
+      "items": [
+        {
+          "label": "Smart"
+        },
+        {
+          "label": "Fast"
+        },
+        {
+          "label": "Secure"
+        }
+      ]
+    },
+    {
+      "type": "statement",
+      "start": {
+        "text": "সাইজ ও বর্তমান"
+      },
+      "text": "বিস্তারিত জানতে ভিজিট করুন আমাদের ওয়েবসাইটে"
+    },
+    {
+      "type": "cta",
+      "start": {
+        "text": "এবার আপনার পালা"
+      },
+      "headline": "আপনার মত কী?",
+      "line": "কমেন্টে জানান",
+      "button": "Subscribe করুন"
+    }
+  ],
+  "theme": "midnight",
+  "ratios": [
+    "9x16",
+    "16x9"
+  ],
+  "resolutions": [
+    "fhd"
+  ],
+  "outputName": "TopicDemo"
+}
