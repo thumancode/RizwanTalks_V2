@@ -147,14 +147,24 @@ window.RT = {};
       compact: H < 1300,
     });
   } else {
+    // ল্যান্ডস্কেপ: উচ্চতা সবসময় ১০৮০ ইউনিট। নিচ থেকে উপরে একটা নির্দিষ্ট "উল্লম্ব বাজেট" ধরে সাজানো, যাতে
+    // ছবি/তালিকা/কার্ড, ক্যাপশন, প্রগ্রেস রেখা আর ব্র্যান্ড বার কখনো একটার ওপর আরেকটা না পড়ে:
+    //   [ কনটেন্ট / হিরো ]  →  [ ক্যাপশন ]  →  [ প্রগ্রেস রেখা ]  →  [ ব্র্যান্ড বার ]  →  ফ্রেম
+    const capFont = Math.min(lk(46, 54), H * 0.042);
+    const capH = Math.ceil(capFont * 1.22 * 2 + 12);          // সর্বোচ্চ দুই লাইন
+    const brandH = 44;                                         // ব্র্যান্ড বারের উচ্চতা
+    const brandY = H - Math.max(64, H * 0.06) - brandH;        // ফ্রেমের ঠিক ওপরে
+    const capLineY = brandY - 16;                              // ক্যাপশনের প্রগ্রেস রেখা (ব্র্যান্ড বারের ওপরে)
+    const capTop = capLineY - 10 - capH;                       // ক্যাপশন বক্স
     Object.assign(G, {
-      ts: lk(1.1, 1.2), hs: 0.74, hdr: 60, cTop: 290, cBot: 800, cy: 552,
-      // Landscape captions are bottom-anchored inside the canvas, never outside it.
-      // Keep a responsive footer-safe margin and scale the caption box with output height.
-      capH: Math.min(156, Math.max(92, H * 0.125)),
-      capTop: H - Math.min(156, Math.max(92, H * 0.125)) - Math.max(118, H * 0.155),
-      capFont: Math.min(lk(46, 54), H * 0.042),
-      capW: Math.min(W * 0.84, 1640), brandY: H - Math.max(112, H * 0.155),
+      ts: lk(1.1, 1.2), hs: 0.74, hdr: 60,
+      cTop: 290, cBot: capTop - 16, cy: (290 + capTop - 16) / 2,
+      capH, capTop, capLineY, capFont, brandY, brandH,
+      capW: Math.min(W * 0.84, 1640),
+      safeTop: 70,                 // হিরোর ওপরের নিরাপদ সীমা (ফ্রেম + প্রগ্রেস বারের নিচে)
+      hdrBottom: 258,              // শিরোনাম-হেডারের নিচ (traits/notes-এ হিরো এর নিচে বসে)
+      heroBottom: capTop - 8,      // হিরো/আকৃতির নিচের সীমা: ক্যাপশনের একটু ওপরে
+      bob: 14,                     // হিরোর ভাসার নড়াচড়ার জন্য ফাঁকা জায়গা
       compact: true,
     });
   }
@@ -175,10 +185,33 @@ window.RT = {};
     statement: [0.5, 0.62, 0.62], headline: [0.5, 0.7, 0.5], stat: [0.5, 0.7, 0.42], quote: [0.5, 0.7, 0.42], steps: [0.5, 0.7, 0.42], compare: [0.5, 0.7, 0.42],
   };
   const HS_WIDE = {
-    intro: [0.50, 0.385, 0.48], title: [0.27, 0.46, 0.78], blend: [0.74, 0.46, 0.82], traits: [0.5, 0.52, 0.95], notes: [0.5, 0.52, 0.95], family: [0.72, 0.46, 0.72],
+    intro: [0.73, 0.47, 1.0], title: [0.27, 0.46, 1.0], blend: [0.74, 0.46, 1.0], traits: [0.5, 0.52, 0.95], notes: [0.5, 0.52, 0.95], family: [0.72, 0.43, 0.72],
     character: [0.19, 0.46, 0.95], occasions: [0.76, 0.46, 0.95], cta: [0.27, 0.46, 1.0], statement: [0.2, 0.46, 0.95],
     headline: [0.2, 0.46, 0.95], stat: [0.2, 0.46, 0.9], quote: [0.2, 0.46, 0.9], steps: [0.5, 0.74, 0.5], compare: [0.5, 0.86, 0.3],
   };
+  // হিরো ছবির আসল দৃশ্যমান অংশ (১০০০ইউনিট বক্সের ভেতর, y-এর পরিসর)। ছবির ফাঁকা ধার বাদ দিয়ে হিসাব করতে।
+  function heroExtent() {
+    const hs = D.heroes || [];
+    if (!hs.length) return [90, 910];   // থিমের প্রতীক
+    let a = 1000, b = 0;
+    hs.forEach((h) => {
+      let e0, e1;
+      if (h.mode === "card") {
+        const ar = h.w / h.h, ch = ar >= 1 ? 860 / ar : 860;
+        e0 = (1000 - ch) / 2; e1 = (1000 + ch) / 2;
+      } else {
+        const ar = h.w / h.h, fh = ar >= 1 ? 1000 / ar : 1000, off = (1000 - fh) / 2;
+        const f = h.ext || [0, 1];
+        e0 = off + f[0] * fh; e1 = off + f[1] * fh;
+      }
+      a = Math.min(a, e0); b = Math.max(b, e1);
+    });
+    return b > a ? [a, b] : [0, 1000];
+  }
+  G.heroExtent = heroExtent;
+  // ল্যান্ডস্কেপে কোন সিনে হিরোর সর্বোচ্চ উচ্চতা সীমিত (অন্য উপাদান ঘিরে থাকলে)
+  const HEADER_TOP = ["traits", "notes"];
+  const HMAX_WIDE = { family: 2 * (235 - 62) };
   G.heroState = function (type) {
     let a = HS[type] || [0.5, 0.5, 0.78];
     if (WIDE) a = HS_WIDE[type] || a;
@@ -187,8 +220,22 @@ window.RT = {};
       if (b) { a = [lerp(b[0], a[0], k), lerp(b[1], a[1], k), lerp(b[2], a[2], k)]; }
       else a = [a[0], a[1], a[2]];
     }
+    if (WIDE) {
+      // ল্যান্ডস্কেপ: হিরোকে [ওপরের সীমা, ক্যাপশনের ওপর] ব্যান্ডের ভেতর বসাই; ব্যান্ডে না আঁটলে ছোট করি
+      const [e0, e1] = heroExtent();
+      const ch = Math.max(1, e1 - e0);
+      const top = (HEADER_TOP.includes(type) ? G.hdrBottom : G.safeTop) + G.bob;
+      const bot = G.heroBottom - G.bob;
+      const maxH = Math.min(bot - top, HMAX_WIDE[type] || 1e9);
+      const s = Math.min(a[2] * G.hs, maxH / ch);
+      const half = ch * s / 2;
+      const mid = clamp(a[1] * H, top + half, bot - half);     // দৃশ্যমান অংশের মাঝখান
+      const y = mid + 10 - ((e0 + e1) / 2 - 500) * s;          // বক্সের হিসাবে রূপান্তর
+      return { x: a[0] * W, y, s, cy: mid, top: mid - half, bottom: mid + half };
+    }
     // ফ্র্যাকশনকে বাস্তব পিক্সেলে নিই
-    return { x: a[0] * W, y: a[1] * H, s: a[2] * G.hs };
+    const y = a[1] * H;
+    return { x: a[0] * W, y, s: a[2] * G.hs, cy: y };
   };
   RT.hasHero = true;
 

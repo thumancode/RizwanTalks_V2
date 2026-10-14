@@ -226,6 +226,11 @@
     const site = el("div", "sans nowrap", G.compact ? row : bar, { marginTop: G.compact ? "0px" : "10px", fontSize: (G.compact ? 24 : 28) + "px", letterSpacing: "4px", color: INK, opacity: 0.75 });
     site.textContent = CFG.website || "";
     if (G.compact && CFG.website && CFG.brand) { l2.style.display = "none"; }
+    if (G.wide) {   // ল্যান্ডস্কেপ: কণা/প্যাটার্নের ওপরেও ব্র্যান্ড লেখা পরিষ্কার থাকুক
+      const halo = `0 0 10px rgba(${C.halo}, 0.95), 0 0 22px rgba(${C.halo}, 0.85)`;
+      txt.style.textShadow = halo; site.style.textShadow = halo;
+      bar.style.height = (G.brandH || 44) + "px"; row.style.height = (G.brandH || 44) + "px";
+    }
     if (!CFG.brand) row.style.display = "none";
     if (!CFG.brand && CFG.website) { row.style.display = "flex"; l1.style.display = l2.style.display = "none"; txt.style.display = "none"; if (!G.compact) bar.insertBefore(site, row); site.style.opacity = 0.85; }
     return (t) => { const bp = prog(t, 0.8, 0.8); bar.style.opacity = bp; bar.style.transform = `translateY(${(1 - bp) * 14}px)`; };

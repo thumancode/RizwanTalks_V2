@@ -151,7 +151,7 @@
     const avail = G.cBot - G.cTop;
     const gap = Math.min(gapL, (avail - chipH) / Math.max(0.5, (n - 1) / 2));
     const span = ((n - 1) / 2) * gap;
-    const yMid = Math.min(hs.y - lk(0, 72), (G.cTop + G.cBot) / 2 + lk(0, 60));
+    const yMid = G.wide ? hs.cy : Math.min(hs.y - lk(0, 72), (G.cTop + G.cBot) / 2 + lk(0, 60));
     const y0 = yMid - span / 2 - chipH / 2;
     const inner = Math.max(168 * G.ts, halfW + 38 * G.ts);
     const maxW = Math.min(336 * G.ts, cx - inner - 40);
@@ -197,12 +197,12 @@
     const z = zoneOf("intro");
     const hs = G.heroState("intro");
     const size = Math.min(1500, Math.max(W, H) * 1.3);
-    const rays = el("div", "abs", L.b, { width: size + "px", height: size + "px", left: hs.x - size / 2 + "px", top: hs.y - size / 2 + "px", borderRadius: "50%",
+    const rays = el("div", "abs", L.b, { width: size + "px", height: size + "px", left: hs.x - size / 2 + "px", top: hs.cy - size / 2 + "px", borderRadius: "50%",
       background: `repeating-conic-gradient(from 0deg, ${rgba(C.accent, 0.30)} 0deg 5deg, ${rgba(C.accent, 0)} 5deg 12deg)`,
       WebkitMaskImage: "radial-gradient(circle, #000 12%, rgba(0,0,0,0.55) 40%, transparent 68%)", maskImage: "radial-gradient(circle, #000 12%, rgba(0,0,0,0.55) 40%, transparent 68%)" });
     if (S.rays === "none") rays.style.display = "none";
     const rs = svgRoot(L.b);
-    const rings = [0, 1, 2].map(() => sv("circle", { cx: hs.x, cy: hs.y, r: 100, fill: "none", stroke: GOLD, "stroke-width": 3 }, rs));
+    const rings = [0, 1, 2].map(() => sv("circle", { cx: hs.x, cy: hs.cy, r: 100, fill: "none", stroke: GOLD, "stroke-width": 3 }, rs));
     const top = Y(52, 170, H * 0.3);
     const ts = G.ts;
     const wrap = el("div", "abs", L.f, { top: top + "px", textAlign: "center" });
@@ -245,6 +245,16 @@
       default: return "M-300 340V-60C-300 -200 -150 -290 0 -370C150 -290 300 -200 300 -60V340Z";
     }
   }
+  // আকৃতির উল্লম্ব পরিসর (মূল বিন্দু থেকে)
+  function archExt(kind) { return kind === "diamond" ? [-400, 400] : kind === "hex" || kind === "oval" || kind === "rect" || kind === "circle" ? [-370, 370] : [-370, 340]; }
+  // ল্যান্ডস্কেপে আকৃতিটা হিরোর ব্যান্ডের (ওপরের সীমা ↔ ক্যাপশনের ওপর) ভেতরে আঁটিয়ে দেয়
+  function fitArch(hs) {
+    const [a, b] = archExt(S.arch);
+    const top = G.safeTop + 6, bot = G.heroBottom - 6;
+    const sc = Math.min(1, (bot - top) / (b - a));
+    const cy = Math.min(Math.max(hs.cy - ((a + b) / 2) * sc, top - a * sc), bot - b * sc);
+    return { sc, cy };
+  }
   function arch(back, cx, cy, sc = 1) {
     const g = svgRoot(back);
     const d = archPath(S.arch);
@@ -269,7 +279,8 @@
     const hs = G.heroState("title");
     const u = G.wide ? 0.92 : lk(0.72, 1);
     const off = G.wide ? 44 : 0;
-    const drawArch = arch(L.b, hs.x, G.wide ? hs.y : lk(hs.y + 20, 1010), archScale());
+    const fa = G.wide ? fitArch(hs) : null;
+    const drawArch = arch(L.b, hs.x, G.wide ? fa.cy : lk(hs.y + 20, 1010), G.wide ? fa.sc : archScale());
     const kick = el("div", "abs", L.f, { textAlign: "center", top: (250 * u + off) + "px" });
     place(kick, z);
     const k1 = el("div", "", kick);
@@ -303,7 +314,7 @@
       const rv = sc.times.reveal;
       drawArch(prog(lt, 0.2, dsp(1.8), E.inOutCubic));
       const pk = prog(lt, 0.3, dsp(0.9));
-      const move = E.inOutCubic(clamp((t - rv) / 0.9));
+      const move = E.inOutCubic(clamp((t - rv + (G.wide ? 0.5 : 0)) / 0.9));   // ল্যান্ডস্কেপে নাম ফোটার আগেই ব্র্যান্ড লেখা ওপরে সরে যায়, যেন দুটো একসাথে না পড়ে
       css(kick, { opacity: clamp(pk * 1.5), top: lerp(430 * u + off, 150 * u + off, move) + "px", transform: `scale(${lerp(1.0, 0.6, move)}) translateY(${(1 - pk) * 20}px)` });
       k2.style.opacity = 1 - move;
       [l1, l2].forEach((l, li) => {
@@ -345,7 +356,7 @@
     t3.textContent = sc.accords || "";
     place(t3, z);
     fitW(t3, z.w - 50, 32 * u);
-    const cy = hs.y;
+    const cy = hs.cy;
     return (t) => {
       const lt = t - sc.start;
       const e = E.outCubic(clamp((lt - 0.3) / 2.3));
@@ -387,7 +398,7 @@
     const z = zoneOf("family");
     const hs = G.heroState("family");
     const h = header(L.f, sc, { zone: z, y: G.wide ? H * 0.12 : G.hdr });
-    const cx = hs.x, cy = G.wide ? hs.y : lk(560, 905);
+    const cx = hs.x, cy = G.wide ? hs.cy : lk(560, 905);
     const rx = G.wide ? Math.min(W * 0.21, 400) : 372;
     const ry = G.wide ? 235 : lk(185, 372);
     const fi = G.wide ? 0.66 : lk(0.62, 1);
@@ -432,7 +443,7 @@
     const h = header(L.f, sc, { zone: z, y: hy, size: 78 });
     const items = sc.items || [];
     const start = Math.max(h.bottom + 14, G.wide ? 250 : lk(250, 405));
-    const pitch = Math.min(130 * bu, (G.cBot + (G.wide ? 20 : 0) - start) / Math.max(1, items.length));
+    const pitch = Math.min(130 * bu, (G.cBot - start) / Math.max(1, items.length));
     const rows = items.map((it, k) => {
       const y = start + k * pitch;
       const r = el("div", "abs", L.f, { top: y + "px", height: pitch + "px", textAlign: "center" });
@@ -465,7 +476,7 @@
     const left0 = G.wide ? z.x + 70 : 70;
     const rw = G.wide ? z.w - 100 : 660;
     const start = Math.max(h.bottom + 22, G.wide ? 300 : lk(300, 470));
-    const pitch = Math.min(138 * (G.wide ? 0.9 : bu), (G.cBot + (G.wide ? 40 : 0) - start) / Math.max(1, items.length));
+    const pitch = Math.min(138 * (G.wide ? 0.9 : bu), (G.cBot - start) / Math.max(1, items.length));
     const rows = items.map((it, k) => {
       const y = start + k * pitch;
       const rh = Math.min(110, pitch - 8);
@@ -497,9 +508,10 @@
     const z = zoneOf("cta");
     const hs = G.heroState("cta");
     const u = G.wide ? 0.92 : lk(0.72, 1);
-    const drawArch = arch(L.b, hs.x, G.wide ? hs.y : lk(hs.y + 10, 840), archScale());
+    const fa = G.wide ? fitArch(hs) : null;
+    const drawArch = arch(L.b, hs.x, G.wide ? fa.cy : lk(hs.y + 10, 840), G.wide ? fa.sc : archScale());
     const size = Math.min(1500, Math.max(W, H) * 1.3);
-    const rays = el("div", "abs", L.b, { width: size + "px", height: size + "px", left: hs.x - size / 2 + "px", top: hs.y - size / 2 + "px", borderRadius: "50%",
+    const rays = el("div", "abs", L.b, { width: size + "px", height: size + "px", left: hs.x - size / 2 + "px", top: hs.cy - size / 2 + "px", borderRadius: "50%",
       background: `repeating-conic-gradient(from 0deg, ${rgba(C.accent, 0.26)} 0deg 5deg, ${rgba(C.accent, 0)} 5deg 12deg)`,
       WebkitMaskImage: "radial-gradient(circle, #000 12%, rgba(0,0,0,0.5) 40%, transparent 66%)", maskImage: "radial-gradient(circle, #000 12%, rgba(0,0,0,0.5) 40%, transparent 66%)" });
     if (S.rays === "none") rays.style.display = "none";
@@ -558,7 +570,7 @@
       sparks.forEach((s, i) => {
         const q = clamp((lt - 0.35 - s.e) / 1.6);
         const R = s.d * E.outCubic(q);
-        const x = hs.x + R * Math.cos(s.a), y = hs.y + R * Math.sin(s.a);
+        const x = hs.x + R * Math.cos(s.a), y = hs.cy + R * Math.sin(s.a);
         const sc2 = s.s * Math.sin(Math.PI * q);
         spEls[i].setAttribute("transform", `translate(${x} ${y}) scale(${sc2}) rotate(${q * 90})`);
         spEls[i].style.opacity = q > 0 && q < 1 ? 1 : 0;
@@ -779,7 +791,7 @@
     const items = (sc.items || []).slice(0, 2);
     const h = header(L.f, sc, { y: G.wide ? G.hdr : lk(66, 215), size: 88 });
     const top = Math.max(h.bottom + 24, G.wide ? 300 : lk(290, 520));
-    const bottom = G.cBot + (G.wide ? 30 : lk(20, 40));
+    const bottom = G.wide ? G.cBot : G.cBot + lk(20, 40);
     const gap = G.wide ? 130 : lk(70, 96);
     const pw = G.wide ? Math.min(760, (W - 260) / 2) : W - 150;
     const ph = G.wide ? bottom - top : (bottom - top - gap) / 2;

@@ -60,7 +60,7 @@
     maxWidth: G.capW - 20 + "px", maxHeight: G.capH - 8 + "px",
     overflow: "hidden", overflowWrap: "anywhere"
   });
-  const capLine = el("div", "abs", capL, { left: W / 2 - 110 + "px", top: G.capTop + G.capH + 10 + "px", width: "220px", height: "4px", borderRadius: "2px", background: rgba(C.accent, 0.25), overflow: "hidden" });
+  const capLine = el("div", "abs", capL, { left: W / 2 - 110 + "px", top: (G.capLineY != null ? G.capLineY : G.capTop + G.capH + 10) + "px", width: "220px", height: "4px", borderRadius: "2px", background: rgba(C.accent, 0.25), overflow: "hidden" });
   const capFill = el("div", "", capLine, { height: "4px", width: "0px", background: `linear-gradient(90deg, ${C.accentL}, ${C.accent})` });
   const caps = D.captions;
   let lastCap = -2;
