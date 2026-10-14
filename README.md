@@ -183,3 +183,8 @@ python make_video.py . --theme midnight --ratio 1x1 --still 5 --still 20   # শ
 `source/render/` ফোল্ডারে আলাদা আলাদা ফাইল: `render.py` (পাইপলাইন), `align.py` (সিঙ্ক), `sfx.py` (সাউন্ড), `themes.json` (২৪ থিম, রেশিও, রেজোলিউশন), `site/` (`base.js` লেআউট ও হিরো, `decor.js` থিমের সাজ, `scenes.js` সিন, `main.js` ফ্রেম লুপ)।
 পরিবর্তনের পর `python source/tools/bundle.py` চালালে `source/dist/make_video.py` তৈরি হয়, সেটা মূল `make_video.py`-র জায়গায় বসান।
 নতুন থিম যোগ করতে `themes.json`-এ একটা এন্ট্রি দিলেই হয় (`order` তালিকাতেও নাম দিন, workflow-এর `theme` অপশনেও)।
+
+
+## 48 ইউনিক থিম ও আলাদা BGM
+
+Workflow-এর `theme` ইনপুটে `all` বেছে নিলে ২৪টি পুরোনো + ২৪টি নতুন থিম রেন্ডার হবে। প্রতিটি থিমে নিজস্ব রঙ, প্যাটার্ন, ফ্রেম, মোশন/টাইপোগ্রাফি রেসিপি এবং procedural instrumental BGM profile রয়েছে। BGM প্রোফাইলগুলি স্থানীয় কোডে তৈরি হয়; কোনো বাহ্যিক ডাউনলোড বা কপিরাইটেড ট্র্যাকের উপর নির্ভর করে না। সব ৪৮টি থিম একসাথে রেন্ডার করলে বেশি সময় ও GitHub Actions artifact/release storage লাগবে।
