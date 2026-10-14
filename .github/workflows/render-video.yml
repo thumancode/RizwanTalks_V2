@@ -8,37 +8,10 @@ on:
         required: true
         default: "."
       theme:
-        description: "থিম: config = config.json-এর থিম | auto = ২৪টির মধ্যে ঘুরিয়ে | all = ২৪টি থিম"
-        type: choice
-        default: config
-        options:
-          - config
-          - auto
-          - all
-          - royal
-          - midnight
-          - emerald
-          - sunrise
-          - rose
-          - ocean
-          - crimson
-          - neon
-          - mono
-          - lavender
-          - luxe
-          - sand
-          - editorial
-          - cyberpunk
-          - forest
-          - blueprint
-          - candy
-          - volcanic
-          - arctic
-          - newspaper
-          - royalblue
-          - retro
-          - minimal
-          - cosmic
+        description: "all = সব ৪৮টি থিম | auto = ঘুরিয়ে | config = config.json | অথবা নির্দিষ্ট theme ID লিখুন: royal, midnight, emerald, sunrise, rose, ocean, crimson, neon, mono, lavender, luxe, sand, editorial, cyberpunk, forest, blueprint, candy, volcanic, arctic, newspaper, royalblue, retro, minimal, cosmic, museum, vaporwave, kintsugi, bauhaus, noir, botanical, liquid, sports, craft, terminal, mediterranean, glacier, comic, watercolor, industrial, desertnight, festival, organic, monsoon, spaceage, heritage, streetart, zen, synthwave"
+        type: string
+        required: true
+        default: all
       ratios:
         description: "রেশিও (কমা দিয়ে): 9x16, 4x5, 3x4, 1x1, 4x3, 16x9 | অথবা portrait, landscape, social, all | config = config.json-এর ratios"
         required: true
