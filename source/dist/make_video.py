@@ -21177,14 +21177,24 @@ window.RT = {};
       compact: H < 1300,
     });
   } else {
+    // ল্যান্ডস্কেপ: উচ্চতা সবসময় ১০৮০ ইউনিট। নিচ থেকে উপরে একটা নির্দিষ্ট "উল্লম্ব বাজেট" ধরে সাজানো, যাতে
+    // ছবি/তালিকা/কার্ড, ক্যাপশন, প্রগ্রেস রেখা আর ব্র্যান্ড বার কখনো একটার ওপর আরেকটা না পড়ে:
+    //   [ কনটেন্ট / হিরো ]  →  [ ক্যাপশন ]  →  [ প্রগ্রেস রেখা ]  →  [ ব্র্যান্ড বার ]  →  ফ্রেম
+    const capFont = Math.min(lk(46, 54), H * 0.042);
+    const capH = Math.ceil(capFont * 1.22 * 2 + 12);          // সর্বোচ্চ দুই লাইন
+    const brandH = 44;                                         // ব্র্যান্ড বারের উচ্চতা
+    const brandY = H - Math.max(64, H * 0.06) - brandH;        // ফ্রেমের ঠিক ওপরে
+    const capLineY = brandY - 16;                              // ক্যাপশনের প্রগ্রেস রেখা (ব্র্যান্ড বারের ওপরে)
+    const capTop = capLineY - 10 - capH;                       // ক্যাপশন বক্স
     Object.assign(G, {
-      ts: lk(1.1, 1.2), hs: 0.74, hdr: 60, cTop: 290, cBot: 800, cy: 552,
-      // Landscape captions are bottom-anchored inside the canvas, never outside it.
-      // Keep a responsive footer-safe margin and scale the caption box with output height.
-      capH: Math.min(156, Math.max(92, H * 0.125)),
-      capTop: H - Math.min(156, Math.max(92, H * 0.125)) - Math.max(118, H * 0.155),
-      capFont: Math.min(lk(46, 54), H * 0.042),
-      capW: Math.min(W * 0.84, 1640), brandY: H - Math.max(112, H * 0.155),
+      ts: lk(1.1, 1.2), hs: 0.74, hdr: 60,
+      cTop: 290, cBot: capTop - 16, cy: (290 + capTop - 16) / 2,
+      capH, capTop, capLineY, capFont, brandY, brandH,
+      capW: Math.min(W * 0.84, 1640),
+      safeTop: 70,                 // হিরোর ওপরের নিরাপদ সীমা (ফ্রেম + প্রগ্রেস বারের নিচে)
+      hdrBottom: 258,              // শিরোনাম-হেডারের নিচ (traits/notes-এ হিরো এর নিচে বসে)
+      heroBottom: capTop - 8,      // হিরো/আকৃতির নিচের সীমা: ক্যাপশনের একটু ওপরে
+      bob: 14,                     // হিরোর ভাসার নড়াচড়ার জন্য ফাঁকা জায়গা
       compact: true,
     });
   }
@@ -21205,10 +21215,33 @@ window.RT = {};
     statement: [0.5, 0.62, 0.62], headline: [0.5, 0.7, 0.5], stat: [0.5, 0.7, 0.42], quote: [0.5, 0.7, 0.42], steps: [0.5, 0.7, 0.42], compare: [0.5, 0.7, 0.42],
   };
   const HS_WIDE = {
-    intro: [0.50, 0.385, 0.48], title: [0.27, 0.46, 0.78], blend: [0.74, 0.46, 0.82], traits: [0.5, 0.52, 0.95], notes: [0.5, 0.52, 0.95], family: [0.72, 0.46, 0.72],
+    intro: [0.73, 0.47, 1.0], title: [0.27, 0.46, 1.0], blend: [0.74, 0.46, 1.0], traits: [0.5, 0.52, 0.95], notes: [0.5, 0.52, 0.95], family: [0.72, 0.43, 0.72],
     character: [0.19, 0.46, 0.95], occasions: [0.76, 0.46, 0.95], cta: [0.27, 0.46, 1.0], statement: [0.2, 0.46, 0.95],
     headline: [0.2, 0.46, 0.95], stat: [0.2, 0.46, 0.9], quote: [0.2, 0.46, 0.9], steps: [0.5, 0.74, 0.5], compare: [0.5, 0.86, 0.3],
   };
+  // হিরো ছবির আসল দৃশ্যমান অংশ (১০০০ইউনিট বক্সের ভেতর, y-এর পরিসর)। ছবির ফাঁকা ধার বাদ দিয়ে হিসাব করতে।
+  function heroExtent() {
+    const hs = D.heroes || [];
+    if (!hs.length) return [90, 910];   // থিমের প্রতীক
+    let a = 1000, b = 0;
+    hs.forEach((h) => {
+      let e0, e1;
+      if (h.mode === "card") {
+        const ar = h.w / h.h, ch = ar >= 1 ? 860 / ar : 860;
+        e0 = (1000 - ch) / 2; e1 = (1000 + ch) / 2;
+      } else {
+        const ar = h.w / h.h, fh = ar >= 1 ? 1000 / ar : 1000, off = (1000 - fh) / 2;
+        const f = h.ext || [0, 1];
+        e0 = off + f[0] * fh; e1 = off + f[1] * fh;
+      }
+      a = Math.min(a, e0); b = Math.max(b, e1);
+    });
+    return b > a ? [a, b] : [0, 1000];
+  }
+  G.heroExtent = heroExtent;
+  // ল্যান্ডস্কেপে কোন সিনে হিরোর সর্বোচ্চ উচ্চতা সীমিত (অন্য উপাদান ঘিরে থাকলে)
+  const HEADER_TOP = ["traits", "notes"];
+  const HMAX_WIDE = { family: 2 * (235 - 62) };
   G.heroState = function (type) {
     let a = HS[type] || [0.5, 0.5, 0.78];
     if (WIDE) a = HS_WIDE[type] || a;
@@ -21217,8 +21250,22 @@ window.RT = {};
       if (b) { a = [lerp(b[0], a[0], k), lerp(b[1], a[1], k), lerp(b[2], a[2], k)]; }
       else a = [a[0], a[1], a[2]];
     }
+    if (WIDE) {
+      // ল্যান্ডস্কেপ: হিরোকে [ওপরের সীমা, ক্যাপশনের ওপর] ব্যান্ডের ভেতর বসাই; ব্যান্ডে না আঁটলে ছোট করি
+      const [e0, e1] = heroExtent();
+      const ch = Math.max(1, e1 - e0);
+      const top = (HEADER_TOP.includes(type) ? G.hdrBottom : G.safeTop) + G.bob;
+      const bot = G.heroBottom - G.bob;
+      const maxH = Math.min(bot - top, HMAX_WIDE[type] || 1e9);
+      const s = Math.min(a[2] * G.hs, maxH / ch);
+      const half = ch * s / 2;
+      const mid = clamp(a[1] * H, top + half, bot - half);     // দৃশ্যমান অংশের মাঝখান
+      const y = mid + 10 - ((e0 + e1) / 2 - 500) * s;          // বক্সের হিসাবে রূপান্তর
+      return { x: a[0] * W, y, s, cy: mid, top: mid - half, bottom: mid + half };
+    }
     // ফ্র্যাকশনকে বাস্তব পিক্সেলে নিই
-    return { x: a[0] * W, y: a[1] * H, s: a[2] * G.hs };
+    const y = a[1] * H;
+    return { x: a[0] * W, y, s: a[2] * G.hs, cy: y };
   };
   RT.hasHero = true;
 
@@ -21504,6 +21551,11 @@ window.RT = {};
     const site = el("div", "sans nowrap", G.compact ? row : bar, { marginTop: G.compact ? "0px" : "10px", fontSize: (G.compact ? 24 : 28) + "px", letterSpacing: "4px", color: INK, opacity: 0.75 });
     site.textContent = CFG.website || "";
     if (G.compact && CFG.website && CFG.brand) { l2.style.display = "none"; }
+    if (G.wide) {   // ল্যান্ডস্কেপ: কণা/প্যাটার্নের ওপরেও ব্র্যান্ড লেখা পরিষ্কার থাকুক
+      const halo = `0 0 10px rgba(${C.halo}, 0.95), 0 0 22px rgba(${C.halo}, 0.85)`;
+      txt.style.textShadow = halo; site.style.textShadow = halo;
+      bar.style.height = (G.brandH || 44) + "px"; row.style.height = (G.brandH || 44) + "px";
+    }
     if (!CFG.brand) row.style.display = "none";
     if (!CFG.brand && CFG.website) { row.style.display = "flex"; l1.style.display = l2.style.display = "none"; txt.style.display = "none"; if (!G.compact) bar.insertBefore(site, row); site.style.opacity = 0.85; }
     return (t) => { const bp = prog(t, 0.8, 0.8); bar.style.opacity = bp; bar.style.transform = `translateY(${(1 - bp) * 14}px)`; };
@@ -21709,7 +21761,7 @@ window.RT = {};
     const avail = G.cBot - G.cTop;
     const gap = Math.min(gapL, (avail - chipH) / Math.max(0.5, (n - 1) / 2));
     const span = ((n - 1) / 2) * gap;
-    const yMid = Math.min(hs.y - lk(0, 72), (G.cTop + G.cBot) / 2 + lk(0, 60));
+    const yMid = G.wide ? hs.cy : Math.min(hs.y - lk(0, 72), (G.cTop + G.cBot) / 2 + lk(0, 60));
     const y0 = yMid - span / 2 - chipH / 2;
     const inner = Math.max(168 * G.ts, halfW + 38 * G.ts);
     const maxW = Math.min(336 * G.ts, cx - inner - 40);
@@ -21755,12 +21807,12 @@ window.RT = {};
     const z = zoneOf("intro");
     const hs = G.heroState("intro");
     const size = Math.min(1500, Math.max(W, H) * 1.3);
-    const rays = el("div", "abs", L.b, { width: size + "px", height: size + "px", left: hs.x - size / 2 + "px", top: hs.y - size / 2 + "px", borderRadius: "50%",
+    const rays = el("div", "abs", L.b, { width: size + "px", height: size + "px", left: hs.x - size / 2 + "px", top: hs.cy - size / 2 + "px", borderRadius: "50%",
       background: `repeating-conic-gradient(from 0deg, ${rgba(C.accent, 0.30)} 0deg 5deg, ${rgba(C.accent, 0)} 5deg 12deg)`,
       WebkitMaskImage: "radial-gradient(circle, #000 12%, rgba(0,0,0,0.55) 40%, transparent 68%)", maskImage: "radial-gradient(circle, #000 12%, rgba(0,0,0,0.55) 40%, transparent 68%)" });
     if (S.rays === "none") rays.style.display = "none";
     const rs = svgRoot(L.b);
-    const rings = [0, 1, 2].map(() => sv("circle", { cx: hs.x, cy: hs.y, r: 100, fill: "none", stroke: GOLD, "stroke-width": 3 }, rs));
+    const rings = [0, 1, 2].map(() => sv("circle", { cx: hs.x, cy: hs.cy, r: 100, fill: "none", stroke: GOLD, "stroke-width": 3 }, rs));
     const top = Y(52, 170, H * 0.3);
     const ts = G.ts;
     const wrap = el("div", "abs", L.f, { top: top + "px", textAlign: "center" });
@@ -21803,6 +21855,16 @@ window.RT = {};
       default: return "M-300 340V-60C-300 -200 -150 -290 0 -370C150 -290 300 -200 300 -60V340Z";
     }
   }
+  // আকৃতির উল্লম্ব পরিসর (মূল বিন্দু থেকে)
+  function archExt(kind) { return kind === "diamond" ? [-400, 400] : kind === "hex" || kind === "oval" || kind === "rect" || kind === "circle" ? [-370, 370] : [-370, 340]; }
+  // ল্যান্ডস্কেপে আকৃতিটা হিরোর ব্যান্ডের (ওপরের সীমা ↔ ক্যাপশনের ওপর) ভেতরে আঁটিয়ে দেয়
+  function fitArch(hs) {
+    const [a, b] = archExt(S.arch);
+    const top = G.safeTop + 6, bot = G.heroBottom - 6;
+    const sc = Math.min(1, (bot - top) / (b - a));
+    const cy = Math.min(Math.max(hs.cy - ((a + b) / 2) * sc, top - a * sc), bot - b * sc);
+    return { sc, cy };
+  }
   function arch(back, cx, cy, sc = 1) {
     const g = svgRoot(back);
     const d = archPath(S.arch);
@@ -21827,7 +21889,8 @@ window.RT = {};
     const hs = G.heroState("title");
     const u = G.wide ? 0.92 : lk(0.72, 1);
     const off = G.wide ? 44 : 0;
-    const drawArch = arch(L.b, hs.x, G.wide ? hs.y : lk(hs.y + 20, 1010), archScale());
+    const fa = G.wide ? fitArch(hs) : null;
+    const drawArch = arch(L.b, hs.x, G.wide ? fa.cy : lk(hs.y + 20, 1010), G.wide ? fa.sc : archScale());
     const kick = el("div", "abs", L.f, { textAlign: "center", top: (250 * u + off) + "px" });
     place(kick, z);
     const k1 = el("div", "", kick);
@@ -21861,7 +21924,7 @@ window.RT = {};
       const rv = sc.times.reveal;
       drawArch(prog(lt, 0.2, dsp(1.8), E.inOutCubic));
       const pk = prog(lt, 0.3, dsp(0.9));
-      const move = E.inOutCubic(clamp((t - rv) / 0.9));
+      const move = E.inOutCubic(clamp((t - rv + (G.wide ? 0.5 : 0)) / 0.9));   // ল্যান্ডস্কেপে নাম ফোটার আগেই ব্র্যান্ড লেখা ওপরে সরে যায়, যেন দুটো একসাথে না পড়ে
       css(kick, { opacity: clamp(pk * 1.5), top: lerp(430 * u + off, 150 * u + off, move) + "px", transform: `scale(${lerp(1.0, 0.6, move)}) translateY(${(1 - pk) * 20}px)` });
       k2.style.opacity = 1 - move;
       [l1, l2].forEach((l, li) => {
@@ -21903,7 +21966,7 @@ window.RT = {};
     t3.textContent = sc.accords || "";
     place(t3, z);
     fitW(t3, z.w - 50, 32 * u);
-    const cy = hs.y;
+    const cy = hs.cy;
     return (t) => {
       const lt = t - sc.start;
       const e = E.outCubic(clamp((lt - 0.3) / 2.3));
@@ -21945,7 +22008,7 @@ window.RT = {};
     const z = zoneOf("family");
     const hs = G.heroState("family");
     const h = header(L.f, sc, { zone: z, y: G.wide ? H * 0.12 : G.hdr });
-    const cx = hs.x, cy = G.wide ? hs.y : lk(560, 905);
+    const cx = hs.x, cy = G.wide ? hs.cy : lk(560, 905);
     const rx = G.wide ? Math.min(W * 0.21, 400) : 372;
     const ry = G.wide ? 235 : lk(185, 372);
     const fi = G.wide ? 0.66 : lk(0.62, 1);
@@ -21990,7 +22053,7 @@ window.RT = {};
     const h = header(L.f, sc, { zone: z, y: hy, size: 78 });
     const items = sc.items || [];
     const start = Math.max(h.bottom + 14, G.wide ? 250 : lk(250, 405));
-    const pitch = Math.min(130 * bu, (G.cBot + (G.wide ? 20 : 0) - start) / Math.max(1, items.length));
+    const pitch = Math.min(130 * bu, (G.cBot - start) / Math.max(1, items.length));
     const rows = items.map((it, k) => {
       const y = start + k * pitch;
       const r = el("div", "abs", L.f, { top: y + "px", height: pitch + "px", textAlign: "center" });
@@ -22023,7 +22086,7 @@ window.RT = {};
     const left0 = G.wide ? z.x + 70 : 70;
     const rw = G.wide ? z.w - 100 : 660;
     const start = Math.max(h.bottom + 22, G.wide ? 300 : lk(300, 470));
-    const pitch = Math.min(138 * (G.wide ? 0.9 : bu), (G.cBot + (G.wide ? 40 : 0) - start) / Math.max(1, items.length));
+    const pitch = Math.min(138 * (G.wide ? 0.9 : bu), (G.cBot - start) / Math.max(1, items.length));
     const rows = items.map((it, k) => {
       const y = start + k * pitch;
       const rh = Math.min(110, pitch - 8);
@@ -22055,9 +22118,10 @@ window.RT = {};
     const z = zoneOf("cta");
     const hs = G.heroState("cta");
     const u = G.wide ? 0.92 : lk(0.72, 1);
-    const drawArch = arch(L.b, hs.x, G.wide ? hs.y : lk(hs.y + 10, 840), archScale());
+    const fa = G.wide ? fitArch(hs) : null;
+    const drawArch = arch(L.b, hs.x, G.wide ? fa.cy : lk(hs.y + 10, 840), G.wide ? fa.sc : archScale());
     const size = Math.min(1500, Math.max(W, H) * 1.3);
-    const rays = el("div", "abs", L.b, { width: size + "px", height: size + "px", left: hs.x - size / 2 + "px", top: hs.y - size / 2 + "px", borderRadius: "50%",
+    const rays = el("div", "abs", L.b, { width: size + "px", height: size + "px", left: hs.x - size / 2 + "px", top: hs.cy - size / 2 + "px", borderRadius: "50%",
       background: `repeating-conic-gradient(from 0deg, ${rgba(C.accent, 0.26)} 0deg 5deg, ${rgba(C.accent, 0)} 5deg 12deg)`,
       WebkitMaskImage: "radial-gradient(circle, #000 12%, rgba(0,0,0,0.5) 40%, transparent 66%)", maskImage: "radial-gradient(circle, #000 12%, rgba(0,0,0,0.5) 40%, transparent 66%)" });
     if (S.rays === "none") rays.style.display = "none";
@@ -22116,7 +22180,7 @@ window.RT = {};
       sparks.forEach((s, i) => {
         const q = clamp((lt - 0.35 - s.e) / 1.6);
         const R = s.d * E.outCubic(q);
-        const x = hs.x + R * Math.cos(s.a), y = hs.y + R * Math.sin(s.a);
+        const x = hs.x + R * Math.cos(s.a), y = hs.cy + R * Math.sin(s.a);
         const sc2 = s.s * Math.sin(Math.PI * q);
         spEls[i].setAttribute("transform", `translate(${x} ${y}) scale(${sc2}) rotate(${q * 90})`);
         spEls[i].style.opacity = q > 0 && q < 1 ? 1 : 0;
@@ -22337,7 +22401,7 @@ window.RT = {};
     const items = (sc.items || []).slice(0, 2);
     const h = header(L.f, sc, { y: G.wide ? G.hdr : lk(66, 215), size: 88 });
     const top = Math.max(h.bottom + 24, G.wide ? 300 : lk(290, 520));
-    const bottom = G.cBot + (G.wide ? 30 : lk(20, 40));
+    const bottom = G.wide ? G.cBot : G.cBot + lk(20, 40);
     const gap = G.wide ? 130 : lk(70, 96);
     const pw = G.wide ? Math.min(760, (W - 260) / 2) : W - 150;
     const ph = G.wide ? bottom - top : (bottom - top - gap) / 2;
@@ -22435,7 +22499,7 @@ window.RT = {};
     maxWidth: G.capW - 20 + "px", maxHeight: G.capH - 8 + "px",
     overflow: "hidden", overflowWrap: "anywhere"
   });
-  const capLine = el("div", "abs", capL, { left: W / 2 - 110 + "px", top: G.capTop + G.capH + 10 + "px", width: "220px", height: "4px", borderRadius: "2px", background: rgba(C.accent, 0.25), overflow: "hidden" });
+  const capLine = el("div", "abs", capL, { left: W / 2 - 110 + "px", top: (G.capLineY != null ? G.capLineY : G.capTop + G.capH + 10) + "px", width: "220px", height: "4px", borderRadius: "2px", background: rgba(C.accent, 0.25), overflow: "hidden" });
   const capFill = el("div", "", capLine, { height: "4px", width: "0px", background: `linear-gradient(90deg, ${C.accentL}, ${C.accent})` });
   const caps = D.captions;
   let lastCap = -2;
@@ -22786,9 +22850,21 @@ def font_links(th):
 
 
 # --------------------------------------------------------------------------- ছবি প্রস্তুত
+def _extent(mask):
+    """মাস্ক (true = ছবির দৃশ্যমান অংশ) থেকে ওপর-নিচের পরিসর, ছবির উচ্চতার ভগ্নাংশে [0..1]।"""
+    import numpy as np
+
+    rows = np.where(mask.sum(axis=1) > max(2, mask.shape[1] * 0.004))[0]
+    if len(rows) < 2:
+        return [0.0, 1.0]
+    h = mask.shape[0]
+    return [round(float(rows[0]) / h, 4), round(float(rows[-1] + 1) / h, 4)]
+
+
 def prep_image(src, dst):
-    """ছবির ধরন বুঝে সংরক্ষণ করে। ফেরত: (kind, w, h)
-    kind = alpha (স্বচ্ছ PNG) | white (সাদা/হালকা ব্যাকগ্রাউন্ডের প্রোডাক্ট) | photo (সাধারণ ছবি)।"""
+    """ছবির ধরন বুঝে সংরক্ষণ করে। ফেরত: (kind, w, h, ext)
+    kind = alpha (স্বচ্ছ PNG) | white (সাদা/হালকা ব্যাকগ্রাউন্ডের প্রোডাক্ট) | photo (সাধারণ ছবি)।
+    ext = ছবির দৃশ্যমান অংশের [ওপর, নিচ] (উচ্চতার ভগ্নাংশ)। ল্যান্ডস্কেপে ছবি ক্যাপশনের ওপর আঁটাতে লাগে।"""
     import numpy as np
     from PIL import Image
 
@@ -22800,7 +22876,7 @@ def prep_image(src, dst):
         a = np.asarray(im.split()[-1])
         if (a < 250).mean() > 0.03:
             im.save(dst)
-            return "alpha", w, h
+            return "alpha", w, h, _extent(a > 40)
         im = im.convert("RGB")
     arr = np.asarray(im).astype("float32")
     b = max(4, min(h, w) // 100)
@@ -22809,13 +22885,14 @@ def prep_image(src, dst):
         wp = np.clip(np.percentile(ring, 8, axis=0), 190, 255)
         out = np.clip(arr * (255.0 / wp), 0, 255).astype("uint8")
         Image.fromarray(out).save(dst)
-        return "white", w, h
+        dev = 255.0 - out.astype("float32").min(axis=2)
+        return "white", w, h, _extent(dev > 45)
     # সাধারণ ছবি: বড় হলে ছোট করে নিই (ভিডিওতে ১২০০px-ই যথেষ্ট)
     if max(w, h) > 1800:
         r = 1800 / max(w, h)
         im = im.resize((int(w * r), int(h * r)), Image.LANCZOS)
     im.convert("RGB").save(dst)
-    return "photo", im.size[0], im.size[1]
+    return "photo", im.size[0], im.size[1], [0.0, 1.0]
 
 
 # --------------------------------------------------------------------------- রেন্ডার
@@ -22990,8 +23067,8 @@ def main():
     prepped = []
     for i, src in enumerate(images):
         dst = os.path.join(build, f"hero{i}.png")
-        kind, w, h = prep_image(src, dst)
-        prepped.append({"src": f"hero{i}.png", "kind": kind, "w": w, "h": h, "name": os.path.basename(src)})
+        kind, w, h, ext = prep_image(src, dst)
+        prepped.append({"src": f"hero{i}.png", "kind": kind, "w": w, "h": h, "ext": ext, "name": os.path.basename(src)})
         print(f"ছবি {os.path.basename(src)}: ধরন = {kind}")
     logo_name = None
     if logo:
@@ -23023,7 +23100,7 @@ def main():
             mode = imode
             if mode == "auto":
                 mode = {"alpha": "cutout", "white": "spot" if th["dark"] else "blend", "photo": "card"}[p["kind"]]
-            heroes.append({"src": p["src"], "mode": mode, "w": p["w"], "h": p["h"], "name": p["name"]})
+            heroes.append({"src": p["src"], "mode": mode, "w": p["w"], "h": p["h"], "ext": p["ext"], "name": p["name"]})
         if not a.still:
             print(f"সাউন্ড ইফেক্ট বানানো হচ্ছে ({tid}) ...")
             sfx.build_sfx(tl, sfx_wav, th.get("sfx"))
