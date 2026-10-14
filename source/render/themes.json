@@ -1,0 +1,1589 @@
+{
+  "order": [
+    "royal",
+    "midnight",
+    "emerald",
+    "sunrise",
+    "rose",
+    "ocean",
+    "crimson",
+    "neon",
+    "mono",
+    "lavender",
+    "luxe",
+    "sand",
+    "editorial",
+    "cyberpunk",
+    "forest",
+    "blueprint",
+    "candy",
+    "volcanic",
+    "arctic",
+    "newspaper",
+    "royalblue",
+    "retro",
+    "minimal",
+    "cosmic"
+  ],
+  "themes": {
+    "royal": {
+      "name": "Royal Ivory",
+      "bn": "রয়্যাল আইভরি (আইভরি + সোনালি)",
+      "dark": false,
+      "c": {
+        "bg": [
+          "#fbf6ec",
+          "#f2e8d4",
+          "#e2d1ae"
+        ],
+        "ink": "#2a1c10",
+        "sub": "#8a6224",
+        "accent": "#b98a3e",
+        "accentL": "#e6cc8f",
+        "accentD": "#8a6224",
+        "accent2": "#1f4d46",
+        "onAccent": "#2a1608",
+        "chip": "rgba(255,252,245,0.82)",
+        "halo": "255,250,238",
+        "glow": "226,184,100",
+        "vig": "120,84,30",
+        "palette": [
+          "#d9a441",
+          "#d6587f",
+          "#2f7f6b",
+          "#8f7bc4",
+          "#c8672a",
+          "#7a5a37"
+        ]
+      },
+      "font": {
+        "display": "Cormorant Garamond",
+        "body": "Jost",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": [
+          "Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600",
+          "Jost:wght@400;500;600",
+          "Noto+Sans+Bengali:wght@400;600;700"
+        ]
+      },
+      "style": {
+        "pattern": "arabesque",
+        "frame": "deco",
+        "orn": "diamond",
+        "chip": "glass",
+        "rule": "orn",
+        "rays": "none",
+        "particles": "spark",
+        "arch": "arch",
+        "upper": true,
+        "ls": 0.9,
+        "motion": "smooth",
+        "spot": true
+      },
+      "sfx": {
+        "pitch": 1.0,
+        "bright": 1.0,
+        "sub": 1.0
+      }
+    },
+    "midnight": {
+      "name": "Midnight Tech",
+      "bn": "মিডনাইট টেক (নেভি + সায়ান)",
+      "dark": true,
+      "c": {
+        "bg": [
+          "#14284e",
+          "#0b1530",
+          "#050a1a"
+        ],
+        "ink": "#eaf3ff",
+        "sub": "#6fd6ff",
+        "accent": "#25c2ff",
+        "accentL": "#9fe6ff",
+        "accentD": "#0a8fd1",
+        "accent2": "#7c6bff",
+        "onAccent": "#03101f",
+        "chip": "rgba(10,26,56,0.72)",
+        "halo": "4,10,28",
+        "glow": "37,194,255",
+        "vig": "0,0,0",
+        "palette": [
+          "#25c2ff",
+          "#7c6bff",
+          "#2de2b0",
+          "#ff7ab6",
+          "#ffd166",
+          "#4d8dff"
+        ]
+      },
+      "font": {
+        "display": "Space Grotesk",
+        "body": "Space Grotesk",
+        "bn": "Anek Bangla",
+        "dw": 700,
+        "bw": 500,
+        "gf": [
+          "Space+Grotesk:wght@400;500;600;700",
+          "Anek+Bangla:wght@400;600;700"
+        ]
+      },
+      "style": {
+        "pattern": "scan",
+        "frame": "neon",
+        "orn": "plus",
+        "chip": "outline",
+        "rule": "line",
+        "rays": "rings",
+        "particles": "square",
+        "arch": "diamond",
+        "upper": true,
+        "ls": 0.7,
+        "motion": "snappy",
+        "spot": true
+      },
+      "sfx": {
+        "pitch": 0.86,
+        "bright": 0.8,
+        "sub": 1.3
+      }
+    },
+    "emerald": {
+      "name": "Emerald Garden",
+      "bn": "এমারেল্ড গার্ডেন (গাঢ় সবুজ + পুদিনা)",
+      "dark": true,
+      "c": {
+        "bg": [
+          "#1d5b4d",
+          "#0f3d33",
+          "#07241e"
+        ],
+        "ink": "#f1fbf6",
+        "sub": "#8be0b6",
+        "accent": "#35d49a",
+        "accentL": "#a8f0d0",
+        "accentD": "#1a9a6f",
+        "accent2": "#e6c36a",
+        "onAccent": "#04231a",
+        "chip": "rgba(8,48,40,0.7)",
+        "halo": "5,28,23",
+        "glow": "53,212,154",
+        "vig": "0,0,0",
+        "palette": [
+          "#35d49a",
+          "#e6c36a",
+          "#7bd88f",
+          "#4cc9f0",
+          "#f4a261",
+          "#b8f2e6"
+        ]
+      },
+      "font": {
+        "display": "Playfair Display",
+        "body": "Jost",
+        "bn": "Noto Serif Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": [
+          "Playfair+Display:wght@500;600;700",
+          "Jost:wght@400;500;600",
+          "Noto+Serif+Bengali:wght@400;600;700"
+        ]
+      },
+      "style": {
+        "pattern": "topo",
+        "frame": "arch",
+        "orn": "leaf",
+        "chip": "glass",
+        "rule": "orn",
+        "rays": "none",
+        "particles": "bubble",
+        "arch": "oval",
+        "upper": false,
+        "ls": 0.25,
+        "motion": "smooth",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 0.95,
+        "bright": 0.9,
+        "sub": 1.1
+      }
+    },
+    "sunrise": {
+      "name": "Sunrise Pop",
+      "bn": "সানরাইজ পপ (কমলা + কোরাল)",
+      "dark": false,
+      "c": {
+        "bg": [
+          "#fff4e1",
+          "#ffd9b8",
+          "#ffb7a0"
+        ],
+        "ink": "#3a1608",
+        "sub": "#c2410c",
+        "accent": "#ff6a1a",
+        "accentL": "#ffc27a",
+        "accentD": "#c2410c",
+        "accent2": "#e11d74",
+        "onAccent": "#ffffff",
+        "chip": "rgba(255,255,255,0.88)",
+        "halo": "255,244,228",
+        "glow": "255,140,60",
+        "vig": "190,70,20",
+        "palette": [
+          "#ff6a1a",
+          "#e11d74",
+          "#ffb703",
+          "#fb5607",
+          "#8338ec",
+          "#06d6a0"
+        ]
+      },
+      "font": {
+        "display": "Poppins",
+        "body": "Poppins",
+        "bn": "Hind Siliguri",
+        "dw": 700,
+        "bw": 600,
+        "gf": [
+          "Poppins:wght@500;600;700",
+          "Hind+Siliguri:wght@400;500;600;700"
+        ]
+      },
+      "style": {
+        "pattern": "burst",
+        "frame": "round",
+        "fw": 12,
+        "orn": "sun",
+        "chip": "block",
+        "rule": "bar",
+        "rays": "conic",
+        "particles": "ember",
+        "arch": "circle",
+        "upper": true,
+        "ls": 0.35,
+        "motion": "snappy",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 1.12,
+        "bright": 1.1,
+        "sub": 0.9
+      }
+    },
+    "rose": {
+      "name": "Rose Blush",
+      "bn": "রোজ ব্লাশ (গোলাপি + প্লাম)",
+      "dark": false,
+      "c": {
+        "bg": [
+          "#fff2f5",
+          "#fbd9e3",
+          "#f2b6ca"
+        ],
+        "ink": "#3b1230",
+        "sub": "#a21d5b",
+        "accent": "#d6336c",
+        "accentL": "#f7a8c4",
+        "accentD": "#9d174d",
+        "accent2": "#6d2a5e",
+        "onAccent": "#ffffff",
+        "chip": "rgba(255,255,255,0.78)",
+        "halo": "255,240,244",
+        "glow": "240,120,160",
+        "vig": "160,40,90",
+        "palette": [
+          "#d6336c",
+          "#f7a8c4",
+          "#6d2a5e",
+          "#ff8fab",
+          "#b5179e",
+          "#ffb3c6"
+        ]
+      },
+      "font": {
+        "display": "DM Serif Display",
+        "body": "DM Sans",
+        "bn": "Noto Serif Bengali",
+        "dw": 400,
+        "bw": 500,
+        "gf": [
+          "DM+Serif+Display:ital@0;1",
+          "DM+Sans:wght@400;500;600",
+          "Noto+Serif+Bengali:wght@400;600;700"
+        ]
+      },
+      "style": {
+        "pattern": "bokeh",
+        "frame": "ticket",
+        "fw": 2,
+        "orn": "spark",
+        "chip": "glass",
+        "rule": "dots",
+        "rays": "none",
+        "particles": "snow",
+        "arch": "oval",
+        "upper": false,
+        "ls": 0.15,
+        "motion": "smooth",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 1.2,
+        "bright": 1.2,
+        "sub": 0.6
+      }
+    },
+    "ocean": {
+      "name": "Ocean Breeze",
+      "bn": "ওশান ব্রিজ (অ্যাকোয়া + টিল)",
+      "dark": false,
+      "c": {
+        "bg": [
+          "#ebfcff",
+          "#bfeef6",
+          "#80d4e7"
+        ],
+        "ink": "#06324a",
+        "sub": "#0b7a99",
+        "accent": "#0891b2",
+        "accentL": "#7dd3e8",
+        "accentD": "#0e5f7a",
+        "accent2": "#f59e0b",
+        "onAccent": "#ffffff",
+        "chip": "rgba(255,255,255,0.86)",
+        "halo": "232,251,255",
+        "glow": "34,190,220",
+        "vig": "10,90,120",
+        "palette": [
+          "#0891b2",
+          "#f59e0b",
+          "#06b6d4",
+          "#3b82f6",
+          "#10b981",
+          "#f472b6"
+        ]
+      },
+      "font": {
+        "display": "Nunito",
+        "body": "Nunito",
+        "bn": "Baloo Da 2",
+        "dw": 800,
+        "bw": 700,
+        "gf": [
+          "Nunito:wght@600;700;800",
+          "Baloo+Da+2:wght@500;600;700"
+        ]
+      },
+      "style": {
+        "pattern": "waves",
+        "frame": "none",
+        "orn": "drop",
+        "chip": "pill",
+        "rule": "dots",
+        "rays": "rings",
+        "particles": "bubble",
+        "arch": "circle",
+        "upper": false,
+        "ls": 0.1,
+        "motion": "smooth",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 1.05,
+        "bright": 1.0,
+        "sub": 0.9
+      }
+    },
+    "crimson": {
+      "name": "Crimson Breaking",
+      "bn": "ক্রিমসন ব্রেকিং (কালো + লাল)",
+      "dark": true,
+      "c": {
+        "bg": [
+          "#2c0e11",
+          "#170709",
+          "#080203"
+        ],
+        "ink": "#fff4f1",
+        "sub": "#ff7a6b",
+        "accent": "#ef2b2d",
+        "accentL": "#ff8a80",
+        "accentD": "#b4101a",
+        "accent2": "#ffd166",
+        "onAccent": "#ffffff",
+        "chip": "rgba(34,8,10,0.8)",
+        "halo": "10,2,3",
+        "glow": "239,43,45",
+        "vig": "0,0,0",
+        "palette": [
+          "#ef2b2d",
+          "#ffd166",
+          "#ff8a80",
+          "#ffffff",
+          "#b4101a",
+          "#ff6b35"
+        ]
+      },
+      "font": {
+        "display": "Bebas Neue",
+        "body": "Barlow Condensed",
+        "bn": "Anek Bangla",
+        "dw": 400,
+        "bw": 600,
+        "gf": [
+          "Bebas+Neue",
+          "Barlow+Condensed:wght@500;600;700",
+          "Anek+Bangla:wght@400;600;700"
+        ]
+      },
+      "style": {
+        "pattern": "stripes",
+        "frame": "bar",
+        "orn": "tri",
+        "chip": "block",
+        "rule": "bar",
+        "rays": "conic",
+        "particles": "ember",
+        "arch": "rect",
+        "upper": true,
+        "ls": 0.65,
+        "motion": "snappy",
+        "spot": true
+      },
+      "sfx": {
+        "pitch": 0.8,
+        "bright": 0.7,
+        "sub": 1.6
+      }
+    },
+    "neon": {
+      "name": "Neon Pulse",
+      "bn": "নিয়ন পালস (বেগুনি + ম্যাজেন্টা)",
+      "dark": true,
+      "c": {
+        "bg": [
+          "#2c1052",
+          "#160829",
+          "#07030f"
+        ],
+        "ink": "#fdf4ff",
+        "sub": "#5ef2ff",
+        "accent": "#ff2bd6",
+        "accentL": "#ff9cf0",
+        "accentD": "#c0149f",
+        "accent2": "#19e6ff",
+        "onAccent": "#12021f",
+        "chip": "rgba(22,6,42,0.7)",
+        "halo": "8,2,16",
+        "glow": "255,43,214",
+        "vig": "0,0,0",
+        "palette": [
+          "#ff2bd6",
+          "#19e6ff",
+          "#b388ff",
+          "#ffe45e",
+          "#7cffb2",
+          "#ff6b9d"
+        ]
+      },
+      "font": {
+        "display": "Orbitron",
+        "body": "Rajdhani",
+        "bn": "Anek Bangla",
+        "dw": 800,
+        "bw": 600,
+        "gf": [
+          "Orbitron:wght@600;800",
+          "Rajdhani:wght@500;600;700",
+          "Anek+Bangla:wght@400;600;700"
+        ]
+      },
+      "style": {
+        "pattern": "grid",
+        "frame": "brackets",
+        "orn": "plus",
+        "chip": "outline",
+        "rule": "line",
+        "rays": "rings",
+        "particles": "square",
+        "arch": "diamond",
+        "upper": true,
+        "ls": 0.45,
+        "motion": "snappy",
+        "spot": true
+      },
+      "sfx": {
+        "pitch": 1.25,
+        "bright": 1.3,
+        "sub": 1.2
+      }
+    },
+    "mono": {
+      "name": "Mono Editorial",
+      "bn": "মনো এডিটোরিয়াল (সাদা + কালো)",
+      "dark": false,
+      "c": {
+        "bg": [
+          "#ffffff",
+          "#f5f5f2",
+          "#e5e5e0"
+        ],
+        "ink": "#0b0b0b",
+        "sub": "#555555",
+        "accent": "#111111",
+        "accentL": "#9a9a9a",
+        "accentD": "#000000",
+        "accent2": "#e5322d",
+        "onAccent": "#ffffff",
+        "chip": "rgba(255,255,255,0.96)",
+        "halo": "255,255,255",
+        "glow": "120,120,120",
+        "vig": "60,60,60",
+        "palette": [
+          "#111111",
+          "#e5322d",
+          "#777777",
+          "#2b6cb0",
+          "#d69e2e",
+          "#38a169"
+        ]
+      },
+      "font": {
+        "display": "Archivo",
+        "body": "Archivo",
+        "bn": "Noto Sans Bengali",
+        "dw": 800,
+        "bw": 500,
+        "gf": [
+          "Archivo:wght@500;600;800",
+          "Noto+Sans+Bengali:wght@400;600;700"
+        ]
+      },
+      "style": {
+        "pattern": "dots",
+        "frame": "plain",
+        "orn": "square",
+        "chip": "tag",
+        "rule": "bar",
+        "rays": "none",
+        "particles": "none",
+        "arch": "rect",
+        "upper": true,
+        "ls": 0.3,
+        "motion": "snappy",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 0.92,
+        "bright": 0.9,
+        "sub": 1.0
+      }
+    },
+    "lavender": {
+      "name": "Lavender Dream",
+      "bn": "ল্যাভেন্ডার ড্রিম (বেগুনি + লিলাক)",
+      "dark": false,
+      "c": {
+        "bg": [
+          "#f8f2ff",
+          "#e7dafb",
+          "#cdb9f5"
+        ],
+        "ink": "#2a1457",
+        "sub": "#6d3fd6",
+        "accent": "#8b5cf6",
+        "accentL": "#c4b0fb",
+        "accentD": "#5b2fc2",
+        "accent2": "#f472b6",
+        "onAccent": "#ffffff",
+        "chip": "rgba(255,255,255,0.72)",
+        "halo": "247,241,255",
+        "glow": "139,92,246",
+        "vig": "90,50,170",
+        "palette": [
+          "#8b5cf6",
+          "#f472b6",
+          "#38bdf8",
+          "#fbbf24",
+          "#34d399",
+          "#c4b0fb"
+        ]
+      },
+      "font": {
+        "display": "Quicksand",
+        "body": "Quicksand",
+        "bn": "Hind Siliguri",
+        "dw": 700,
+        "bw": 600,
+        "gf": [
+          "Quicksand:wght@500;600;700",
+          "Hind+Siliguri:wght@400;500;600;700"
+        ]
+      },
+      "style": {
+        "pattern": "aurora",
+        "frame": "ticket",
+        "orn": "moon",
+        "chip": "glass",
+        "rule": "dots",
+        "rays": "none",
+        "particles": "snow",
+        "arch": "circle",
+        "upper": false,
+        "ls": 0.3,
+        "motion": "smooth",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 1.1,
+        "bright": 1.15,
+        "sub": 0.7
+      }
+    },
+    "luxe": {
+      "name": "Luxe Black Gold",
+      "bn": "লাক্স ব্ল্যাক গোল্ড (কালো + সোনালি)",
+      "dark": true,
+      "c": {
+        "bg": [
+          "#2b2519",
+          "#15120c",
+          "#070604"
+        ],
+        "ink": "#f6ecd2",
+        "sub": "#e3bd5e",
+        "accent": "#d4a63a",
+        "accentL": "#f1d98a",
+        "accentD": "#a67c1c",
+        "accent2": "#f1d98a",
+        "onAccent": "#1a1204",
+        "chip": "rgba(26,22,13,0.8)",
+        "halo": "8,7,4",
+        "glow": "212,166,58",
+        "vig": "0,0,0",
+        "palette": [
+          "#d4a63a",
+          "#f1d98a",
+          "#a67c1c",
+          "#e8e2d0",
+          "#8c6a1f",
+          "#ffd86b"
+        ]
+      },
+      "font": {
+        "display": "Cinzel",
+        "body": "Montserrat",
+        "bn": "Noto Serif Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": [
+          "Cinzel:wght@500;700",
+          "Montserrat:wght@400;500;600",
+          "Noto+Serif+Bengali:wght@400;600;700"
+        ]
+      },
+      "style": {
+        "pattern": "deco",
+        "frame": "deco",
+        "orn": "diamond",
+        "chip": "outline",
+        "rule": "orn",
+        "rays": "conic",
+        "particles": "dot",
+        "arch": "arch",
+        "upper": true,
+        "ls": 0.95,
+        "motion": "smooth",
+        "spot": true
+      },
+      "sfx": {
+        "pitch": 0.9,
+        "bright": 1.0,
+        "sub": 1.2
+      }
+    },
+    "sand": {
+      "name": "Sand Terracotta",
+      "bn": "স্যান্ড টেরাকোটা (মাটি রং + সেজ)",
+      "dark": false,
+      "c": {
+        "bg": [
+          "#fcf3e6",
+          "#f1ddc2",
+          "#e2c39b"
+        ],
+        "ink": "#3d2314",
+        "sub": "#b4532a",
+        "accent": "#c2603a",
+        "accentL": "#e9b08c",
+        "accentD": "#8f3d1e",
+        "accent2": "#5f7a54",
+        "onAccent": "#ffffff",
+        "chip": "rgba(255,249,238,0.86)",
+        "halo": "251,242,228",
+        "glow": "220,150,100",
+        "vig": "140,80,40",
+        "palette": [
+          "#c2603a",
+          "#5f7a54",
+          "#e9b08c",
+          "#d9a441",
+          "#8f3d1e",
+          "#9bb08c"
+        ]
+      },
+      "font": {
+        "display": "Fraunces",
+        "body": "DM Sans",
+        "bn": "Tiro Bangla",
+        "dw": 700,
+        "bw": 500,
+        "gf": [
+          "Fraunces:wght@500;600;700",
+          "DM+Sans:wght@400;500;600",
+          "Tiro+Bangla:ital@0;1"
+        ]
+      },
+      "style": {
+        "pattern": "arcs",
+        "frame": "arch",
+        "orn": "circle",
+        "chip": "tag",
+        "rule": "orn",
+        "rays": "none",
+        "particles": "dot",
+        "arch": "arch",
+        "upper": false,
+        "ls": 0.25,
+        "motion": "smooth",
+        "spot": false
+      },
+      "sfx": {
+        "pitch": 0.98,
+        "bright": 0.85,
+        "sub": 1.0
+      }
+    },
+    "editorial": {
+      "label": "Editorial Swiss",
+      "dark": false,
+      "style": {
+        "pattern": "stripes",
+        "frame": "plain",
+        "orn": "square",
+        "chip": "tag",
+        "rule": "line",
+        "rays": "none",
+        "particles": "none",
+        "arch": "rect",
+        "upper": true,
+        "ls": 1.0,
+        "motion": "smooth",
+        "spot": false
+      },
+      "c": {
+        "bg": [
+          "#f7f4ee",
+          "#e7e1d6",
+          "#d4ccbe"
+        ],
+        "ink": "#171717",
+        "sub": "#5b5b55",
+        "accent": "#d62929",
+        "accentL": "#ff8a75",
+        "accentD": "#8f1717",
+        "accent2": "#171717",
+        "onAccent": "#f4f0e8",
+        "chip": "rgba(255,255,255,0.9)",
+        "halo": "245,242,235",
+        "glow": "215,45,45",
+        "vig": "80,60,55",
+        "palette": [
+          "#d62929",
+          "#171717",
+          "#6b7280",
+          "#eab308",
+          "#0f766e",
+          "#f8fafc"
+        ]
+      },
+      "font": {
+        "display": "Archivo",
+        "body": "Inter",
+        "bn": "Noto Sans Bengali",
+        "dw": 800,
+        "bw": 500,
+        "gf": [
+          "Archivo:wght@500;600;800",
+          "Inter:wght@400;500;600;700",
+          "Noto+Sans+Bengali:wght@400;600;700"
+        ]
+      },
+      "name": "Editorial Swiss",
+      "bn": "Editorial Swiss",
+      "sfx": {
+        "pitch": 1.0,
+        "bright": 1.0,
+        "sub": 1.0
+      }
+    },
+    "cyberpunk": {
+      "label": "Cyberpunk",
+      "dark": true,
+      "style": {
+        "pattern": "scan",
+        "frame": "neon",
+        "orn": "plus",
+        "chip": "outline",
+        "rule": "line",
+        "rays": "rings",
+        "particles": "square",
+        "arch": "diamond",
+        "upper": true,
+        "ls": 0.7,
+        "motion": "snappy",
+        "spot": true
+      },
+      "c": {
+        "bg": [
+          "#10051f",
+          "#230b35",
+          "#070711"
+        ],
+        "ink": "#f8f3ff",
+        "sub": "#ff54de",
+        "accent": "#ff2bd6",
+        "accentL": "#ff9cf0",
+        "accentD": "#b50d91",
+        "accent2": "#00f5ff",
+        "onAccent": "#12021f",
+        "chip": "rgba(20,5,36,0.8)",
+        "halo": "10,2,18",
+        "glow": "255,43,214",
+        "vig": "0,0,0",
+        "palette": [
+          "#ff2bd6",
+          "#00f5ff",
+          "#b8ff3b",
+          "#ff4d6d",
+          "#a78bfa",
+          "#ffe45e"
+        ]
+      },
+      "font": {
+        "display": "Orbitron",
+        "body": "Rajdhani",
+        "bn": "Anek Bangla",
+        "dw": 800,
+        "bw": 600,
+        "gf": [
+          "Orbitron:wght@600;800",
+          "Rajdhani:wght@500;600;700",
+          "Anek+Bangla:wght@400;600;700"
+        ]
+      },
+      "name": "Cyberpunk",
+      "bn": "Cyberpunk",
+      "sfx": {
+        "pitch": 1.0,
+        "bright": 1.0,
+        "sub": 1.0
+      }
+    },
+    "forest": {
+      "label": "Forest Field",
+      "dark": true,
+      "style": {
+        "pattern": "topo",
+        "frame": "arch",
+        "orn": "leaf",
+        "chip": "glass",
+        "rule": "orn",
+        "rays": "none",
+        "particles": "bubble",
+        "arch": "oval",
+        "upper": false,
+        "ls": 0.1,
+        "motion": "smooth",
+        "spot": false
+      },
+      "c": {
+        "bg": [
+          "#102d24",
+          "#1d4937",
+          "#081b15"
+        ],
+        "ink": "#f0f8ed",
+        "sub": "#a7d7a2",
+        "accent": "#7bc67b",
+        "accentL": "#c2e6a7",
+        "accentD": "#3b8d62",
+        "accent2": "#e6c86e",
+        "onAccent": "#10251a",
+        "chip": "rgba(11,45,31,0.8)",
+        "halo": "6,25,18",
+        "glow": "123,198,123",
+        "vig": "0,0,0",
+        "palette": [
+          "#7bc67b",
+          "#e6c86e",
+          "#d2e9b8",
+          "#63b3a5",
+          "#f4a261",
+          "#eaf4df"
+        ]
+      },
+      "font": {
+        "display": "Fraunces",
+        "body": "Manrope",
+        "bn": "Noto Serif Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": [
+          "Fraunces:wght@500;600;700",
+          "Manrope:wght@400;500;600;700",
+          "Noto+Serif+Bengali:wght@400;600;700"
+        ]
+      },
+      "name": "Forest Field",
+      "bn": "Forest Field",
+      "sfx": {
+        "pitch": 1.0,
+        "bright": 1.0,
+        "sub": 1.0
+      }
+    },
+    "blueprint": {
+      "label": "Blueprint",
+      "dark": true,
+      "style": {
+        "pattern": "grid",
+        "frame": "brackets",
+        "orn": "plus",
+        "chip": "outline",
+        "rule": "line",
+        "rays": "none",
+        "particles": "none",
+        "arch": "rect",
+        "upper": true,
+        "ls": 0.6,
+        "motion": "snappy",
+        "spot": false
+      },
+      "c": {
+        "bg": [
+          "#082c54",
+          "#0a4476",
+          "#061b36"
+        ],
+        "ink": "#f0f7ff",
+        "sub": "#8bc8ff",
+        "accent": "#2b9cff",
+        "accentL": "#a9dcff",
+        "accentD": "#1264a3",
+        "accent2": "#f0f7ff",
+        "onAccent": "#031b33",
+        "chip": "rgba(4,34,66,0.75)",
+        "halo": "5,30,60",
+        "glow": "43,156,255",
+        "vig": "0,0,0",
+        "palette": [
+          "#2b9cff",
+          "#f0f7ff",
+          "#fbbf24",
+          "#22d3ee",
+          "#a78bfa",
+          "#34d399"
+        ]
+      },
+      "font": {
+        "display": "Space Grotesk",
+        "body": "IBM Plex Sans",
+        "bn": "Anek Bangla",
+        "dw": 700,
+        "bw": 500,
+        "gf": [
+          "Space+Grotesk:wght@400;500;600;700",
+          "IBM+Plex+Sans:wght@400;500;600;700",
+          "Anek+Bangla:wght@400;600;700"
+        ]
+      },
+      "name": "Blueprint",
+      "bn": "Blueprint",
+      "sfx": {
+        "pitch": 1.0,
+        "bright": 1.0,
+        "sub": 1.0
+      }
+    },
+    "candy": {
+      "label": "Candy Pop",
+      "dark": false,
+      "style": {
+        "pattern": "bokeh",
+        "frame": "ticket",
+        "orn": "spark",
+        "chip": "pill",
+        "rule": "dots",
+        "rays": "none",
+        "particles": "bubble",
+        "arch": "circle",
+        "upper": false,
+        "ls": 0.1,
+        "motion": "smooth",
+        "spot": true
+      },
+      "c": {
+        "bg": [
+          "#fff0f7",
+          "#ffd5e8",
+          "#f8bde0"
+        ],
+        "ink": "#42133c",
+        "sub": "#a21d75",
+        "accent": "#ff4fa3",
+        "accentL": "#ff9fd0",
+        "accentD": "#bc2675",
+        "accent2": "#7c3aed",
+        "onAccent": "#ffffff",
+        "chip": "rgba(255,255,255,0.8)",
+        "halo": "255,238,247",
+        "glow": "255,79,163",
+        "vig": "150,30,100",
+        "palette": [
+          "#ff4fa3",
+          "#7c3aed",
+          "#22c55e",
+          "#f59e0b",
+          "#06b6d4",
+          "#fb7185"
+        ]
+      },
+      "font": {
+        "display": "Nunito",
+        "body": "Nunito",
+        "bn": "Baloo Da 2",
+        "dw": 800,
+        "bw": 700,
+        "gf": [
+          "Nunito:wght@600;700;800",
+          "Baloo+Da+2:wght@500;600;700"
+        ]
+      },
+      "name": "Candy Pop",
+      "bn": "Candy Pop",
+      "sfx": {
+        "pitch": 1.0,
+        "bright": 1.0,
+        "sub": 1.0
+      }
+    },
+    "volcanic": {
+      "label": "Volcanic",
+      "dark": true,
+      "style": {
+        "pattern": "burst",
+        "frame": "bar",
+        "orn": "tri",
+        "chip": "block",
+        "rule": "bar",
+        "rays": "conic",
+        "particles": "ember",
+        "arch": "rect",
+        "upper": true,
+        "ls": 0.9,
+        "motion": "snappy",
+        "spot": true
+      },
+      "c": {
+        "bg": [
+          "#250c0a",
+          "#4a1710",
+          "#100504"
+        ],
+        "ink": "#fff1e7",
+        "sub": "#ff9b62",
+        "accent": "#f04427",
+        "accentL": "#ffb14a",
+        "accentD": "#a82017",
+        "accent2": "#ffb14a",
+        "onAccent": "#ffffff",
+        "chip": "rgba(50,10,5,0.8)",
+        "halo": "15,4,2",
+        "glow": "240,68,39",
+        "vig": "0,0,0",
+        "palette": [
+          "#f04427",
+          "#ffb14a",
+          "#fff1e7",
+          "#f97316",
+          "#a3e635",
+          "#e11d48"
+        ]
+      },
+      "font": {
+        "display": "Bebas Neue",
+        "body": "Barlow Condensed",
+        "bn": "Anek Bangla",
+        "dw": 400,
+        "bw": 600,
+        "gf": [
+          "Bebas+Neue",
+          "Barlow+Condensed:wght@500;600;700",
+          "Anek+Bangla:wght@400;600;700"
+        ]
+      },
+      "name": "Volcanic",
+      "bn": "Volcanic",
+      "sfx": {
+        "pitch": 1.0,
+        "bright": 1.0,
+        "sub": 1.0
+      }
+    },
+    "arctic": {
+      "label": "Arctic Glass",
+      "dark": false,
+      "style": {
+        "pattern": "aurora",
+        "frame": "double",
+        "orn": "drop",
+        "chip": "glass",
+        "rule": "dots",
+        "rays": "rings",
+        "particles": "snow",
+        "arch": "oval",
+        "upper": false,
+        "ls": 0.2,
+        "motion": "smooth",
+        "spot": false
+      },
+      "c": {
+        "bg": [
+          "#f4fcff",
+          "#d6f1fa",
+          "#a9dce9"
+        ],
+        "ink": "#073348",
+        "sub": "#197b99",
+        "accent": "#00a8cc",
+        "accentL": "#9be7f5",
+        "accentD": "#126a83",
+        "accent2": "#6d5dfc",
+        "onAccent": "#ffffff",
+        "chip": "rgba(255,255,255,0.76)",
+        "halo": "242,252,255",
+        "glow": "0,168,204",
+        "vig": "30,110,140",
+        "palette": [
+          "#00a8cc",
+          "#6d5dfc",
+          "#ffffff",
+          "#f59e0b",
+          "#10b981",
+          "#fb7185"
+        ]
+      },
+      "font": {
+        "display": "Quicksand",
+        "body": "Nunito",
+        "bn": "Hind Siliguri",
+        "dw": 700,
+        "bw": 600,
+        "gf": [
+          "Quicksand:wght@500;600;700",
+          "Nunito:wght@600;700;800",
+          "Hind+Siliguri:wght@400;500;600;700"
+        ]
+      },
+      "name": "Arctic Glass",
+      "bn": "Arctic Glass",
+      "sfx": {
+        "pitch": 1.0,
+        "bright": 1.0,
+        "sub": 1.0
+      }
+    },
+    "newspaper": {
+      "label": "Newspaper",
+      "dark": false,
+      "style": {
+        "pattern": "dots",
+        "frame": "plain",
+        "orn": "square",
+        "chip": "tag",
+        "rule": "bar",
+        "rays": "none",
+        "particles": "none",
+        "arch": "rect",
+        "upper": true,
+        "ls": 1.2,
+        "motion": "snappy",
+        "spot": false
+      },
+      "c": {
+        "bg": [
+          "#f8f5ed",
+          "#e6e0d4",
+          "#cfc6b6"
+        ],
+        "ink": "#171717",
+        "sub": "#4b5563",
+        "accent": "#111827",
+        "accentL": "#6b7280",
+        "accentD": "#b91c1c",
+        "accent2": "#b91c1c",
+        "onAccent": "#ffffff",
+        "chip": "rgba(255,255,255,0.92)",
+        "halo": "248,245,237",
+        "glow": "30,30,30",
+        "vig": "70,60,50",
+        "palette": [
+          "#111827",
+          "#b91c1c",
+          "#4b5563",
+          "#d97706",
+          "#166534",
+          "#f8f5ed"
+        ]
+      },
+      "font": {
+        "display": "Roboto Slab",
+        "body": "Roboto",
+        "bn": "Noto Serif Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": [
+          "Roboto+Slab:wght@500;600;700",
+          "Roboto:wght@400;500;700",
+          "Noto+Serif+Bengali:wght@400;600;700"
+        ]
+      },
+      "name": "Newspaper",
+      "bn": "Newspaper",
+      "sfx": {
+        "pitch": 1.0,
+        "bright": 1.0,
+        "sub": 1.0
+      }
+    },
+    "royalblue": {
+      "label": "Royal Blue",
+      "dark": true,
+      "style": {
+        "pattern": "arcs",
+        "frame": "deco",
+        "orn": "diamond",
+        "chip": "glass",
+        "rule": "orn",
+        "rays": "rings",
+        "particles": "spark",
+        "arch": "arch",
+        "upper": true,
+        "ls": 0.7,
+        "motion": "smooth",
+        "spot": true
+      },
+      "c": {
+        "bg": [
+          "#071b4b",
+          "#122e72",
+          "#050d2b"
+        ],
+        "ink": "#f5f7ff",
+        "sub": "#a9c7ff",
+        "accent": "#4c7dff",
+        "accentL": "#c7d8ff",
+        "accentD": "#2548aa",
+        "accent2": "#f5d16c",
+        "onAccent": "#06143d",
+        "chip": "rgba(8,27,75,0.78)",
+        "halo": "5,20,65",
+        "glow": "76,125,255",
+        "vig": "0,0,0",
+        "palette": [
+          "#4c7dff",
+          "#f5d16c",
+          "#c7d8ff",
+          "#ff7ab6",
+          "#2dd4bf",
+          "#ffffff"
+        ]
+      },
+      "font": {
+        "display": "Cinzel",
+        "body": "Montserrat",
+        "bn": "Noto Serif Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": [
+          "Cinzel:wght@500;700",
+          "Montserrat:wght@400;500;600",
+          "Noto+Serif+Bengali:wght@400;600;700"
+        ]
+      },
+      "name": "Royal Blue",
+      "bn": "Royal Blue",
+      "sfx": {
+        "pitch": 1.0,
+        "bright": 1.0,
+        "sub": 1.0
+      }
+    },
+    "retro": {
+      "label": "Retro Print",
+      "dark": false,
+      "style": {
+        "pattern": "stripes",
+        "frame": "ticket",
+        "orn": "circle",
+        "chip": "block",
+        "rule": "bar",
+        "rays": "conic",
+        "particles": "dot",
+        "arch": "circle",
+        "upper": true,
+        "ls": 0.3,
+        "motion": "snappy",
+        "spot": false
+      },
+      "c": {
+        "bg": [
+          "#f7e9c8",
+          "#e7c78d",
+          "#c89b5c"
+        ],
+        "ink": "#2b1b12",
+        "sub": "#8b451d",
+        "accent": "#c65d2e",
+        "accentL": "#f1b85b",
+        "accentD": "#77351d",
+        "accent2": "#f1b85b",
+        "onAccent": "#ffffff",
+        "chip": "rgba(255,248,224,0.88)",
+        "halo": "247,233,200",
+        "glow": "198,93,46",
+        "vig": "100,60,30",
+        "palette": [
+          "#c65d2e",
+          "#f1b85b",
+          "#315c45",
+          "#6b4e9b",
+          "#e76f51",
+          "#2b1b12"
+        ]
+      },
+      "font": {
+        "display": "Fraunces",
+        "body": "DM Sans",
+        "bn": "Tiro Bangla",
+        "dw": 700,
+        "bw": 500,
+        "gf": [
+          "Fraunces:wght@500;600;700",
+          "DM+Sans:wght@400;500;600",
+          "Tiro+Bangla:ital@0;1"
+        ]
+      },
+      "name": "Retro Print",
+      "bn": "Retro Print",
+      "sfx": {
+        "pitch": 1.0,
+        "bright": 1.0,
+        "sub": 1.0
+      }
+    },
+    "minimal": {
+      "label": "Minimal Studio",
+      "dark": false,
+      "style": {
+        "pattern": "none",
+        "frame": "none",
+        "orn": "square",
+        "chip": "glass",
+        "rule": "line",
+        "rays": "none",
+        "particles": "none",
+        "arch": "rect",
+        "upper": false,
+        "ls": 0.8,
+        "motion": "smooth",
+        "spot": false
+      },
+      "c": {
+        "bg": [
+          "#fafafa",
+          "#ededed",
+          "#dcdcdc"
+        ],
+        "ink": "#171717",
+        "sub": "#656565",
+        "accent": "#292929",
+        "accentL": "#8d8d8d",
+        "accentD": "#555555",
+        "accent2": "#d94645",
+        "onAccent": "#ffffff",
+        "chip": "rgba(255,255,255,0.88)",
+        "halo": "250,250,250",
+        "glow": "80,80,80",
+        "vig": "80,80,80",
+        "palette": [
+          "#292929",
+          "#d94645",
+          "#2563eb",
+          "#0f766e",
+          "#d97706",
+          "#737373"
+        ]
+      },
+      "font": {
+        "display": "Inter",
+        "body": "Inter",
+        "bn": "Noto Sans Bengali",
+        "dw": 700,
+        "bw": 500,
+        "gf": [
+          "Inter:wght@400;500;600;700",
+          "Noto+Sans+Bengali:wght@400;600;700"
+        ]
+      },
+      "name": "Minimal Studio",
+      "bn": "Minimal Studio",
+      "sfx": {
+        "pitch": 1.0,
+        "bright": 1.0,
+        "sub": 1.0
+      }
+    },
+    "cosmic": {
+      "label": "Cosmic Dream",
+      "dark": true,
+      "style": {
+        "pattern": "aurora",
+        "frame": "round",
+        "orn": "moon",
+        "chip": "glass",
+        "rule": "dots",
+        "rays": "rings",
+        "particles": "spark",
+        "arch": "circle",
+        "upper": true,
+        "ls": 0.5,
+        "motion": "smooth",
+        "spot": true
+      },
+      "c": {
+        "bg": [
+          "#100f35",
+          "#29205c",
+          "#08071e"
+        ],
+        "ink": "#f6f2ff",
+        "sub": "#b8a8ff",
+        "accent": "#9b7cff",
+        "accentL": "#d7caff",
+        "accentD": "#6246c8",
+        "accent2": "#54d6ff",
+        "onAccent": "#100c2d",
+        "chip": "rgba(22,16,56,0.76)",
+        "halo": "15,12,45",
+        "glow": "155,124,255",
+        "vig": "0,0,0",
+        "palette": [
+          "#9b7cff",
+          "#54d6ff",
+          "#f5a6ff",
+          "#ffe66d",
+          "#72f1b8",
+          "#f6f2ff"
+        ]
+      },
+      "font": {
+        "display": "Space Grotesk",
+        "body": "Manrope",
+        "bn": "Anek Bangla",
+        "dw": 700,
+        "bw": 500,
+        "gf": [
+          "Space+Grotesk:wght@400;500;600;700",
+          "Manrope:wght@400;500;600;700",
+          "Anek+Bangla:wght@400;600;700"
+        ]
+      },
+      "name": "Cosmic Dream",
+      "bn": "Cosmic Dream",
+      "sfx": {
+        "pitch": 1.0,
+        "bright": 1.0,
+        "sub": 1.0
+      }
+    }
+  },
+  "ratios": {
+    "9x16": {
+      "w": 1080,
+      "h": 1920,
+      "label": "TikTok / Reels / Shorts / Stories"
+    },
+    "4x5": {
+      "w": 1080,
+      "h": 1350,
+      "label": "Instagram + Facebook ফিড (পোর্ট্রেট)"
+    },
+    "3x4": {
+      "w": 1080,
+      "h": 1440,
+      "label": "Instagram গ্রিড / Facebook"
+    },
+    "1x1": {
+      "w": 1080,
+      "h": 1080,
+      "label": "স্কয়ার (সব প্ল্যাটফর্ম)"
+    },
+    "4x3": {
+      "w": 1440,
+      "h": 1080,
+      "label": "ক্লাসিক ল্যান্ডস্কেপ"
+    },
+    "16x9": {
+      "w": 1920,
+      "h": 1080,
+      "label": "YouTube / Facebook / ওয়েবসাইট"
+    }
+  },
+  "resolutions": {
+    "sd": 540,
+    "hd": 720,
+    "fhd": 1080,
+    "qhd": 1440,
+    "4k": 2160
+  },
+  "groups": {
+    "portrait": [
+      "9x16",
+      "4x5",
+      "3x4"
+    ],
+    "landscape": [
+      "16x9",
+      "4x3"
+    ],
+    "social": [
+      "9x16",
+      "4x5",
+      "1x1",
+      "16x9"
+    ],
+    "all": [
+      "9x16",
+      "4x5",
+      "3x4",
+      "1x1",
+      "4x3",
+      "16x9"
+    ]
+  }
+}
