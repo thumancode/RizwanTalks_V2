@@ -8,7 +8,7 @@ on:
         required: true
         default: "."
       theme:
-        description: "all = সব ৪৮টি থিম | auto = ঘুরিয়ে | config = config.json | অথবা নির্দিষ্ট theme ID লিখুন: royal, midnight, emerald, sunrise, rose, ocean, crimson, neon, mono, lavender, luxe, sand, editorial, cyberpunk, forest, blueprint, candy, volcanic, arctic, newspaper, royalblue, retro, minimal, cosmic, museum, vaporwave, kintsugi, bauhaus, noir, botanical, liquid, sports, craft, terminal, mediterranean, glacier, comic, watercolor, industrial, desertnight, festival, organic, monsoon, spaceage, heritage, streetart, zen, synthwave"
+        description: "all = সব ২৯৬টি থিম | auto = ঘুরিয়ে | config = config.json | অথবা নির্দিষ্ট theme ID লিখুন (সব ২৯৬টি themes.json-এ আছে)"
         type: string
         required: true
         default: all
