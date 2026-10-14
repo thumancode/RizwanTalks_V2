@@ -1,0 +1,200 @@
+{
+  "brand": "Elence Fragrance",
+  "presenter": "Rizwan Talks",
+  "productName": "White Oud",
+  "productSubtitle": "Perfume Oil",
+  "website": "elencefragrance.com",
+  "theme": "royal",
+  "ratios": [
+    "9x16"
+  ],
+  "resolutions": [
+    "fhd"
+  ],
+  "sync": "srt",
+  "bgmVolume": 0.16,
+  "audio": "WhiteOud.wav",
+  "srt": "WhiteOud.srt",
+  "image": "WhiteOud.webp",
+  "scenes": [
+    {
+      "type": "intro"
+    },
+    {
+      "type": "traits",
+      "start": {
+        "text": "আজকে"
+      },
+      "heading": "The Essence",
+      "bn": "দারুণ একটা কম্বিনেশন",
+      "items": [
+        {
+          "label": "Freshness",
+          "bn": "ফ্রেশনেস্"
+        },
+        {
+          "label": "Woody Notes",
+          "bn": "উডি নোট"
+        },
+        {
+          "label": "Elegance",
+          "bn": "এলিগ্যান্সের"
+        }
+      ]
+    },
+    {
+      "type": "title",
+      "start": {
+        "text": "প্রোডাক্টটির"
+      },
+      "revealAt": {
+        "text": "হোয়াইট ওড"
+      }
+    },
+    {
+      "type": "notes",
+      "start": {
+        "text": "এর ঘ্রাণের শুরুতে"
+      },
+      "level": "top",
+      "heading": "Top Notes",
+      "bn": "ঘ্রাণের শুরুতে",
+      "items": [
+        {
+          "label": "Fresh",
+          "bn": "ফ্রেশ",
+          "color": "#a9c24a"
+        },
+        {
+          "label": "Citrus",
+          "bn": "সাইট্রাস",
+          "color": "#f0d22e"
+        },
+        {
+          "label": "Saffron",
+          "bn": "জাফরানের",
+          "color": "#e2631b"
+        }
+      ]
+    },
+    {
+      "type": "notes",
+      "start": {
+        "text": "এরপর কোমল"
+      },
+      "level": "heart",
+      "heading": "Heart Notes",
+      "bn": "কোমল ফুলের ঘ্রাণ",
+      "items": [
+        {
+          "label": "Soft Florals",
+          "bn": "কোমল ফুলের",
+          "color": "#d6587f"
+        },
+        {
+          "label": "Creamy",
+          "bn": "ক্রিমি",
+          "color": "#f0dba2"
+        },
+        {
+          "label": "White Musk",
+          "bn": "হোয়াইট মাস্ক",
+          "color": "#efe7d8"
+        }
+      ]
+    },
+    {
+      "type": "notes",
+      "start": {
+        "text": "আর শেষের দিকে"
+      },
+      "level": "base",
+      "heading": "Base Notes",
+      "bn": "শেষের দিকে",
+      "items": [
+        {
+          "label": "Amber",
+          "bn": "অ্যাম্বার",
+          "color": "#d38a1c"
+        },
+        {
+          "label": "Vanilla",
+          "bn": "ভ্যানিলা",
+          "color": "#f0dba2"
+        },
+        {
+          "label": "Smooth Wood",
+          "bn": "স্মুথ",
+          "color": "#b98a5e"
+        }
+      ]
+    },
+    {
+      "type": "character",
+      "start": {
+        "text": "তৈরি করে"
+      },
+      "heading": "The Experience",
+      "bn": "ঘ্রাণের অভিজ্ঞতা",
+      "items": [
+        {
+          "label": "Warm",
+          "bn": "উষ্ণ"
+        },
+        {
+          "label": "Refined",
+          "bn": "পরিমার্জিত"
+        },
+        {
+          "label": "Experience",
+          "bn": "অভিজ্ঞতা"
+        }
+      ]
+    },
+    {
+      "type": "traits",
+      "start": {
+        "text": "আপনি যদি"
+      },
+      "heading": "Prefer Less Sweet?",
+      "bn": "ফ্রেশ, উডি আর এলিগেন্ট ঘ্রাণ",
+      "items": [
+        {
+          "label": "Fresh",
+          "bn": "ফ্রেশ"
+        },
+        {
+          "label": "Woody",
+          "bn": "উডি"
+        },
+        {
+          "label": "Elegant",
+          "bn": "এলিগেন্ট"
+        }
+      ]
+    },
+    {
+      "type": "statement",
+      "start": {
+        "text": "আর এর দাম"
+      },
+      "text": "মাত্র ৪২০ টাকা থেকে"
+    },
+    {
+      "type": "statement",
+      "start": {
+        "text": "সাইজ ও বর্তমান"
+      },
+      "text": "ভিজিট করুন এলেন্স ফ্র্যাগন্যান্সের ওয়েবসাইটে"
+    },
+    {
+      "type": "cta",
+      "start": {
+        "text": "এবার আপনার পালা"
+      },
+      "headline": "Your Turn",
+      "line": "Fresh Citrus or Woody Oud?",
+      "button": "Tell us in the comments"
+    }
+  ]
+}
