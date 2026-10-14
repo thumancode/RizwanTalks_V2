@@ -501,7 +501,13 @@ def main():
         if not a.still:
             print(f"সাউন্ড ইফেক্ট বানানো হচ্ছে ({tid}) ...")
             sfx.build_sfx(tl, sfx_wav, th.get("sfx"))
-            mix_audio(audio, sfx_wav, bgm, tl["duration"], float(cfg.get("bgmVolume", 0.16)), mix)
+            theme_bgm = os.path.join(build, f"bgm_{tid}.wav")
+            if th.get("bgm"):
+                sfx.build_theme_bgm(tl["duration"], theme_bgm, th.get("bgm"))
+                selected_bgm = theme_bgm
+            else:
+                selected_bgm = bgm
+            mix_audio(audio, sfx_wav, selected_bgm, tl["duration"], float(cfg.get("bgmVolume", 0.16)), mix)
 
         for ratio in ratios:
             R = THEMES["ratios"][ratio]
