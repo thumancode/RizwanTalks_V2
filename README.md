@@ -188,3 +188,11 @@ python make_video.py . --theme midnight --ratio 1x1 --still 5 --still 20   # শ
 ## 48 ইউনিক থিম ও আলাদা BGM
 
 Workflow-এর `theme` ইনপুটে `all` বেছে নিলে ২৪টি পুরোনো + ২৪টি নতুন থিম রেন্ডার হবে। প্রতিটি থিমে নিজস্ব রঙ, প্যাটার্ন, ফ্রেম, মোশন/টাইপোগ্রাফি রেসিপি এবং procedural instrumental BGM profile রয়েছে। BGM প্রোফাইলগুলি স্থানীয় কোডে তৈরি হয়; কোনো বাহ্যিক ডাউনলোড বা কপিরাইটেড ট্র্যাকের উপর নির্ভর করে না। সব ৪৮টি থিম একসাথে রেন্ডার করলে বেশি সময় ও GitHub Actions artifact/release storage লাগবে।
+
+
+## Theme expansion (2296 themes)
+- 48 additional visual theme profiles added to `source/render/themes.json`.
+- Each added theme has a dedicated procedural BGM profile with distinct genre, mode, tempo, root, rhythm, brightness, and seed.
+- Landscape intro hero is reduced and shifted upward to reduce subtitle/product overlap; caption/footer safe area adjusted.
+- Select `theme: all` in GitHub Actions to plan all 2296 themes.
+- First validate with `ratios: 16x9` and `quality: preview`; full render across all themes and ratios can be very large.
