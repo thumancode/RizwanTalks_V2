@@ -1,1 +1,155 @@
+name: Render video
 
+on:
+  workflow_dispatch:
+    inputs:
+      folder:
+        description: "ফাইলগুলো কোথায় আছে? মূল ফোল্ডারে থাকলে . (ডট) রাখুন, নাহলে ফোল্ডারের নাম লিখুন"
+        required: true
+        default: "."
+      theme:
+        description: "থিম: config = config.json-এর থিম | auto = ২৪টির মধ্যে ঘুরিয়ে | all = ২৪টি থিম"
+        type: choice
+        default: config
+        options:
+          - config
+          - auto
+          - all
+          - royal
+          - midnight
+          - emerald
+          - sunrise
+          - rose
+          - ocean
+          - crimson
+          - neon
+          - mono
+          - lavender
+          - luxe
+          - sand
+          - editorial
+          - cyberpunk
+          - forest
+          - blueprint
+          - candy
+          - volcanic
+          - arctic
+          - newspaper
+          - royalblue
+          - retro
+          - minimal
+          - cosmic
+      ratios:
+        description: "রেশিও (কমা দিয়ে): 9x16, 4x5, 3x4, 1x1, 4x3, 16x9 | অথবা portrait, landscape, social, all | config = config.json-এর ratios"
+        required: true
+        default: "config"
+      resolutions:
+        description: "রেজোলিউশন (কমা দিয়ে): sd, hd, fhd, qhd, 4k | অথবা all (hd+fhd+4k) | config = config.json-এর resolutions"
+        required: true
+        default: "config"
+      quality:
+        description: "full = পূর্ণ মান, preview = দ্রুত ছোট প্রিভিউ (SD)"
+        type: choice
+        default: full
+        options:
+          - full
+          - preview
+
+permissions:
+  contents: write
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      count: ${{ steps.plan.outputs.count }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Python dependencies (needed by sfx.py at import time)
+        run: pip install numpy scipy pillow
+      - name: Plan (theme x ratio)
+        id: plan
+        env:
+          FOLDER: ${{ inputs.folder }}
+          THEME: ${{ inputs.theme }}
+          RATIOS: ${{ inputs.ratios }}
+        run: |
+          case "$FOLDER" in *..*|/*) echo "Invalid folder"; exit 1;; esac
+          THEME_ARG="--theme $THEME"
+          python make_video.py "$FOLDER" $THEME_ARG --ratio "$RATIOS" --seed "${{ github.run_number }}" --plan > plan.json
+          cat plan.json
+          echo "matrix=$(cat plan.json)" >> "$GITHUB_OUTPUT"
+          echo "count=$(python -c "import json;print(len(json.load(open('plan.json'))['include']))")" >> "$GITHUB_OUTPUT"
+
+  render:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install tools (ffmpeg, fonts, browser)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-noto-core
+          pip install playwright numpy scipy pillow
+          python -m playwright install --with-deps chromium
+
+      - name: Render video (${{ matrix.theme }} / ${{ matrix.ratio }})
+        env:
+          FOLDER: ${{ inputs.folder }}
+          QUALITY: ${{ inputs.quality }}
+          RES: ${{ inputs.resolutions }}
+        run: |
+          case "$FOLDER" in *..*|/*) echo "Invalid folder"; exit 1;; esac
+          EXTRA=""
+          if [ "$QUALITY" = "preview" ]; then EXTRA="--quick"; fi
+          python make_video.py "$FOLDER" --theme "${{ matrix.theme }}" --ratio "${{ matrix.ratio }}" --res "$RES" \
+            --out out --workers "$(nproc)" $EXTRA
+
+      - name: Save videos as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: video-${{ github.run_number }}-${{ matrix.theme }}-${{ matrix.ratio }}
+          path: |
+            out/*.mp4
+            out/*.srt
+          retention-days: 30
+
+  publish:
+    needs: [plan, render]
+    if: ${{ always() && needs.plan.result == 'success' && needs.render.result != 'cancelled' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all videos
+        uses: actions/download-artifact@v4
+        with:
+          pattern: video-${{ github.run_number }}-*
+          path: out
+          merge-multiple: true
+
+      - name: Publish to Releases (easy download link)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          IN_THEME: ${{ inputs.theme }}
+          IN_RATIOS: ${{ inputs.ratios }}
+          IN_RES: ${{ inputs.resolutions }}
+          IN_QUALITY: ${{ inputs.quality }}
+        run: |
+          ls -la out || true
+          if ! ls out/*.mp4 >/dev/null 2>&1; then echo "No videos were produced."; exit 1; fi
+          gh release create "video-${{ github.run_number }}" out/*.mp4 out/*.srt \
+            --title "Video #${{ github.run_number }}" \
+            --notes "Rendered by GitHub Actions. theme: $IN_THEME | ratios: $IN_RATIOS | resolutions: $IN_RES | quality: $IN_QUALITY"
