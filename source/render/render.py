@@ -431,6 +431,25 @@ def main():
         name = slug
 
     themes = resolve_themes(a.theme, cfg, a.seed)
+    # অজানা style value থাকলে নীরবে fallback না করে বাংলায় স্পষ্ট সতর্কতা দিন।
+    supported_styles = {
+        "pattern": set("arabesque arcs aurora bokeh burst deco dots grid scan stripes topo waves none grain orbit rings diagonal crosshatch contour paper halftone wave topographic starfield checker woven ripple facets radial mesh tile crystal wash metal stars confetti blobs rain engrave spray enso sunsetgrid".split()),
+        "frame": set("arch bar brackets deco double neon none ornate plain round ticket line thin editorial rounded technical corner".split()),
+        "orn": set("circle diamond drop hex leaf moon plus spark square sun tri star dot wave none".split()),
+        "chip": set("glass outline block tag pill solid paper none".split()),
+        "rule": set("bar dots line orn double none dot".split()),
+        "rays": set("none sunburst conic rings beam orbit subtle radial".split()),
+        "particles": set("spark ember snow bubble square dot none dust star confetti leaf drop diamond".split()),
+        "arch": set("arch hex oval circle rect diamond none rounded cut angled burst".split()),
+        "motion": set("smooth snappy float kinetic parallax stagger pulse rise snap drift orbit reveal slow".split()),
+    }
+    for theme_name in themes:
+        theme_data = THEMES.get("themes", {}).get(theme_name, {})
+        style_data = theme_data.get("style", {})
+        missing = [f"{field}={style_data.get(field, '(missing)')}" for field, allowed in supported_styles.items()
+                   if style_data.get(field, "(missing)") not in allowed]
+        if missing:
+            print(f"সতর্কতা: থিম '{theme_name}'-এ drawing code নেই এমন style value: {', '.join(missing)}")
     ratios = resolve_ratios(a.ratio, cfg)
     ress = ["sd"] if a.quick else resolve_res(a.res, cfg)
     if a.plan:
