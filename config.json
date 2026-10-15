@@ -1,7 +1,7 @@
 {
   "brand": "Elence Fragrance",
   "presenter": "Rizwan Talks",
-  "productName": "White Oud",
+  "productName": "Lavender Musk",
   "productSubtitle": "Perfume Oil",
   "website": "elencefragrance.com",
   "theme": "royal",
@@ -11,120 +11,106 @@
   "resolutions": [
     "fhd"
   ],
+  "outputName": "LavenderMusk",
   "sync": "srt",
   "bgmVolume": 0.16,
-  "audio": "WhiteOud.wav",
-  "srt": "WhiteOud.srt",
-  "image": "WhiteOud.webp",
+  "audio": "LavenderMusk.wav",
+  "srt": "LavenderMusk.srt",
+  "image": "LavenderMusk.webp",
   "scenes": [
     {
       "type": "intro"
     },
     {
-      "type": "traits",
+      "type": "statement",
       "start": {
-        "text": "আজকে"
+        "cue": 4
       },
-      "heading": "The Essence",
-      "bn": "দারুণ একটা কম্বিনেশন",
-      "items": [
-        {
-          "label": "Freshness",
-          "bn": "ফ্রেশনেস্"
-        },
-        {
-          "label": "Woody Notes",
-          "bn": "উডি নোট"
-        },
-        {
-          "label": "Elegance",
-          "bn": "এলিগ্যান্সের"
-        }
-      ]
+      "text": "প্রতিদিনের মুহূর্তগুলোতেও এক ধরনের প্রশান্তি"
     },
     {
       "type": "title",
       "start": {
-        "text": "প্রোডাক্টটির"
+        "cue": 7
       },
       "revealAt": {
-        "text": "হোয়াইট ওড"
+        "text": "Lavender"
       }
     },
     {
       "type": "notes",
       "start": {
-        "text": "এর ঘ্রাণের শুরুতে"
+        "cue": 9
       },
       "level": "top",
       "heading": "Top Notes",
-      "bn": "ঘ্রাণের শুরুতে",
+      "bn": "টপ নোটস",
       "items": [
         {
-          "label": "Fresh",
-          "bn": "ফ্রেশ",
-          "color": "#a9c24a"
+          "label": "Lavender",
+          "bn": "ল্যাভেন্ডারের",
+          "color": "#8f7bc4"
+        },
+        {
+          "label": "Aromatic",
+          "bn": "অ্যারোমেটিক",
+          "color": "#6f9154"
         },
         {
           "label": "Citrus",
-          "bn": "সাইট্রাস",
+          "bn": "সাইট্রাসের",
           "color": "#f0d22e"
-        },
-        {
-          "label": "Saffron",
-          "bn": "জাফরানের",
-          "color": "#e2631b"
         }
       ]
     },
     {
       "type": "notes",
       "start": {
-        "text": "এরপর কোমল"
+        "cue": 11
       },
       "level": "heart",
       "heading": "Heart Notes",
-      "bn": "কোমল ফুলের ঘ্রাণ",
+      "bn": "হার্ট নোটস",
       "items": [
         {
-          "label": "Soft Florals",
-          "bn": "কোমল ফুলের",
-          "color": "#d6587f"
+          "label": "Violet",
+          "bn": "ভায়োলেট",
+          "color": "#7a4fa3"
         },
         {
-          "label": "Creamy",
-          "bn": "ক্রিমি",
-          "color": "#f0dba2"
+          "label": "White Lily",
+          "bn": "হোয়াইট লিলি",
+          "color": "#f3efe6"
         },
         {
-          "label": "White Musk",
-          "bn": "হোয়াইট মাস্ক",
-          "color": "#efe7d8"
+          "label": "Soft Spices",
+          "bn": "কোমল স্পাইসেসের",
+          "color": "#c8672a"
         }
       ]
     },
     {
       "type": "notes",
       "start": {
-        "text": "আর শেষের দিকে"
+        "cue": 13
       },
       "level": "base",
       "heading": "Base Notes",
-      "bn": "শেষের দিকে",
+      "bn": "বেইস নোটস",
       "items": [
         {
-          "label": "Amber",
+          "label": "White Musk",
+          "bn": "হোয়াইট মাস্ক",
+          "color": "#efe7d8"
+        },
+        {
+          "label": "Warm Amber",
           "bn": "অ্যাম্বার",
           "color": "#d38a1c"
         },
         {
-          "label": "Vanilla",
-          "bn": "ভ্যানিলা",
-          "color": "#f0dba2"
-        },
-        {
-          "label": "Smooth Wood",
-          "bn": "স্মুথ",
+          "label": "Sandalwood",
+          "bn": "স্যান্ডালউডের",
           "color": "#b98a5e"
         }
       ]
@@ -132,69 +118,66 @@
     {
       "type": "character",
       "start": {
-        "text": "তৈরি করে"
+        "text": "সফট"
       },
-      "heading": "The Experience",
-      "bn": "ঘ্রাণের অভিজ্ঞতা",
+      "heading": "The Finish",
+      "bn": "ফিনিশ",
       "items": [
+        {
+          "label": "Soft",
+          "bn": "সফট"
+        },
         {
           "label": "Warm",
           "bn": "উষ্ণ"
         },
         {
-          "label": "Refined",
-          "bn": "পরিমার্জিত"
-        },
-        {
-          "label": "Experience",
-          "bn": "অভিজ্ঞতা"
-        }
-      ]
-    },
-    {
-      "type": "traits",
-      "start": {
-        "text": "আপনি যদি"
-      },
-      "heading": "Prefer Less Sweet?",
-      "bn": "ফ্রেশ, উডি আর এলিগেন্ট ঘ্রাণ",
-      "items": [
-        {
-          "label": "Fresh",
-          "bn": "ফ্রেশ"
-        },
-        {
           "label": "Woody",
           "bn": "উডি"
+        }
+      ]
+    },
+    {
+      "type": "occasions",
+      "start": {
+        "text": "অফিস"
+      },
+      "heading": "Ideal For",
+      "bn": "ব্যবহারের সময়",
+      "items": [
+        {
+          "label": "Office",
+          "bn": "অফিস"
         },
         {
-          "label": "Elegant",
-          "bn": "এলিগেন্ট"
+          "label": "Everyday Use",
+          "bn": "প্রতিদিনের ব্যবহার"
+        },
+        {
+          "label": "End-of-Day Relax",
+          "bn": "রিল্যাক্স"
+        },
+        {
+          "label": "Fresh Floral Musk Lovers",
+          "bn": "ফ্রেশ"
         }
       ]
     },
     {
       "type": "statement",
       "start": {
-        "text": "আর এর দাম"
+        "text": "দাম"
       },
-      "text": "মাত্র ৪২০ টাকা থেকে"
-    },
-    {
-      "type": "statement",
-      "start": {
-        "text": "সাইজ ও বর্তমান"
-      },
-      "text": "ভিজিট করুন এলেন্স ফ্র্যাগন্যান্সের ওয়েবসাইটে"
+      "text": "মাত্র ৩৫০ টাকা থেকে"
     },
     {
       "type": "cta",
       "start": {
-        "text": "এবার আপনার পালা"
+        "cue": 22
       },
-      "headline": "Your Turn",
-      "line": "Fresh Citrus or Woody Oud?",
-      "button": "Tell us in the comments"
+      "headline": "Visit Now",
+      "line": "Find your favourite fragrance",
+      "button": "Visit the Website"
     }
   ]
 }
