@@ -54,11 +54,41 @@ window.RT = {};
     n.style.transform = `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) scale(${s.toFixed(4)}) rotate(${rot.toFixed(3)}deg)`;
   }
   function appear(n, p, dx = 0, dy = 24, s0 = 1) {
+    const mk = S.motion || "smooth";
+    let x = dx * (1 - p), y = dy * (1 - p), scale = lerp(s0, 1, p);
+    if (mk !== "smooth" && mk !== "snappy") {
+      if (mk === "float") { y += Math.sin(p * Math.PI) * 7; }
+      else if (mk === "kinetic") { const overshoot = Math.sin(Math.min(1,p)*Math.PI) * (1-p) * 0.12; scale *= 1 + overshoot; }
+      else if (mk === "parallax") { x += (dx >= 0 ? 1 : -1) * 18 * (1-p); }
+      else if (mk === "stagger") { y += (1-p) * 16; }
+      else if (mk === "pulse") { scale *= 1 + Math.sin(p * Math.PI) * 0.035; }
+      else if (mk === "rise") { y += 30 * (1-p); }
+      else if (mk === "snap") { x *= 0.55; y *= 0.55; }
+      else if (mk === "drift") { x += Math.sin(p * Math.PI * 0.5) * 12 * (1-p); }
+      else if (mk === "orbit") { const a=(1-p)*0.16; x += Math.sin(a)*18; y += (Math.cos(a)-1)*18; }
+      else if (mk === "reveal") { n.style.filter = `blur(${(1-p)*8}px)`; }
+      else if (mk === "slow") { x *= 1.25; y *= 1.25; }
+    }
     n.style.opacity = clamp(p * 1.5).toFixed(3);
-    setT(n, dx * (1 - p), dy * (1 - p), lerp(s0, 1, p));
+    setT(n, x, y, scale);
   }
   // গতির ধরন: smooth = নরম, snappy = ঝটপট
-  const MOT = S.motion === "snappy" ? { pop: E.outBack, dur: 0.82, text: E.outExpo } : { pop: E.outBack, dur: 1.0, text: E.outCubic };
+  const motionKind = S.motion || "smooth";
+  const MOT = ({
+    snappy: { pop: E.outBack, dur: 0.82, text: E.outExpo },
+    snap: { pop: E.outExpo, dur: 0.62, text: E.outExpo },
+    kinetic: { pop: E.outBack, dur: 0.76, text: E.outExpo },
+    slow: { pop: E.outCubic, dur: 1.35, text: E.outCubic },
+    float: { pop: E.outCubic, dur: 1.08, text: E.outCubic },
+    pulse: { pop: E.outBack, dur: 1.0, text: E.outCubic },
+    rise: { pop: E.outCubic, dur: 1.0, text: E.outCubic },
+    reveal: { pop: E.outCubic, dur: 1.18, text: E.outCubic },
+    stagger: { pop: E.outBack, dur: 1.08, text: E.outCubic },
+    parallax: { pop: E.outCubic, dur: 1.0, text: E.outCubic },
+    drift: { pop: E.outCubic, dur: 1.2, text: E.outCubic },
+    orbit: { pop: E.outBack, dur: 1.0, text: E.outCubic },
+    smooth: { pop: E.outBack, dur: 1.0, text: E.outCubic }
+  })[motionKind] || { pop: E.outBack, dur: 1.0, text: E.outCubic };
   const dsp = (d) => d * MOT.dur;
   function fitW(node, maxW, base) {
     // লেখা বেশি চওড়া হলে ফন্ট ছোট করে বসায়
@@ -116,6 +146,9 @@ window.RT = {};
   function ornPath(kind, cx, cy, R) {
     const rot = (x, y, a) => [cx + x * Math.cos(a) - y * Math.sin(a), cy + x * Math.sin(a) + y * Math.cos(a)];
     switch (kind) {
+      case "none": return "";
+      case "dot": return `M${cx-R*0.35} ${cy}a${R*0.35} ${R*0.35} 0 1 0 ${R*0.7} 0a${R*0.35} ${R*0.35} 0 1 0 ${-R*0.7} 0Z`;
+      case "wave": return `M${cx-R} ${cy}q${R*.5} ${-R*.75} ${R} 0q${R*.5} ${R*.75} ${R} 0`;
       case "hex": return polyPath(Array.from({ length: 6 }, (_, i) => { const a = (Math.PI / 3) * i - Math.PI / 2; return [cx + R * Math.cos(a), cy + R * Math.sin(a)]; }));
       case "leaf": {
         const a = 0.7, t = rot(0, -R, a), b = rot(0, R, a), c1 = rot(R * 1.05, 0, a), c2 = rot(-R * 1.05, 0, a);

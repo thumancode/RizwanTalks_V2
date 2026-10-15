@@ -62,9 +62,17 @@
     } else if (kind === "line") {
       s.style.filter = `drop-shadow(0 0 6px ${C.accent})`;
       ln(14, w - 14, C.accent, 3);
+    } else if (kind === "double") {
+      ln(20, w - 20, GOLD, 2); ln(20, w - 20, GOLD_L, 1);
+      lines[1].l.setAttribute("y1", y + 4); lines[1].l.setAttribute("y2", y + 4);
+    } else if (kind === "dot") {
+      bits.push(sv("circle", { cx: mid, cy: y, r: 3.5, fill: GOLD }, s));
+    } else if (kind === "none") {
+      box.style.height = "0px"; box.style.marginTop = "0px"; box.style.overflow = "hidden";
     } else {
       ln(mid, 20); ln(mid, w - 20);
-      bits.push(sv("path", { d: orn(mid, y, 11), fill: GOLD }, s));
+      const od = orn(mid, y, 11);
+      if (od) bits.push(sv("path", { d: od, fill: GOLD }, s));
     }
     return (q) => {
       lines.forEach(({ l, len }) => { l.setAttribute("stroke-dasharray", len + 4); l.setAttribute("stroke-dashoffset", (1 - q) * (len + 4)); });
@@ -201,8 +209,15 @@
       background: `repeating-conic-gradient(from 0deg, ${rgba(C.accent, 0.30)} 0deg 5deg, ${rgba(C.accent, 0)} 5deg 12deg)`,
       WebkitMaskImage: "radial-gradient(circle, #000 12%, rgba(0,0,0,0.55) 40%, transparent 68%)", maskImage: "radial-gradient(circle, #000 12%, rgba(0,0,0,0.55) 40%, transparent 68%)" });
     if (S.rays === "none") rays.style.display = "none";
+    if (S.rays === "rings" || S.rays === "orbit") rays.style.background = "none";
+    else if (S.rays === "beam") rays.style.background = `repeating-conic-gradient(from -12deg, ${rgba(C.accent,0.15)} 0deg 13deg, transparent 13deg 38deg)`;
+    else if (S.rays === "subtle") rays.style.background = `repeating-conic-gradient(from 0deg, ${rgba(C.accent,0.08)} 0deg 2deg, transparent 2deg 18deg)`;
+    else if (S.rays === "radial") rays.style.background = `repeating-conic-gradient(from 0deg, ${rgba(C.accent,0.16)} 0deg 0.7deg, transparent 0.7deg 9deg)`;
     const rs = svgRoot(L.b);
-    const rings = [0, 1, 2].map(() => sv("circle", { cx: hs.x, cy: hs.cy, r: 100, fill: "none", stroke: GOLD, "stroke-width": 3 }, rs));
+    const rings = [0, 1, 2].map(() => sv("circle", { cx: hs.x, cy: hs.cy, r: 100, fill: "none", stroke: GOLD, "stroke-width": 3, opacity: S.rays === "rings" ? 0.6 : 0 }, rs));
+    if (S.rays === "orbit") {
+      for (let i=0;i<4;i++) { const e=sv("ellipse",{cx:hs.x,cy:hs.cy,rx:150+i*44,ry:65+i*24,fill:"none",stroke:GOLD,"stroke-width":1.5,opacity:.28},rs); const d=sv("circle",{cx:hs.x+150+i*44,cy:hs.cy,r:4,fill:GOLD,opacity:.7},rs); }
+    }
     const top = Y(52, 170, H * 0.3);
     const ts = G.ts;
     const wrap = el("div", "abs", L.f, { top: top + "px", textAlign: "center" });
@@ -242,11 +257,16 @@
       case "circle": return "M-340 0A340 340 0 1 1 340 0A340 340 0 1 1 -340 0Z";
       case "rect": return "M-276 -370H276Q300 -370 300 -346V346Q300 370 276 370H-276Q-300 370 -300 346V-346Q-300 -370 -276 -370Z";
       case "diamond": return "M0 -400L330 0L0 400L-330 0Z";
+      case "none": return "";
+      case "rounded": return "M-260 -350H260Q310 -350 310 -300V300Q310 350 260 350H-260Q-310 350 -310 300V-300Q-310 -350 -260 -350Z";
+      case "cut": return "M-300 -370H220L300 -290V290L220 370H-220L-300 290Z";
+      case "angled": return "M-210 -370H330L210 370H-330Z";
+      case "burst": return Array.from({length:24},(_,i)=>{const a=-Math.PI/2+i*Math.PI/12,r=i%2?285:390;return `${i?"L":"M"}${Math.cos(a)*r} ${Math.sin(a)*r}`;}).join("")+"Z";
       default: return "M-300 340V-60C-300 -200 -150 -290 0 -370C150 -290 300 -200 300 -60V340Z";
     }
   }
   // আকৃতির উল্লম্ব পরিসর (মূল বিন্দু থেকে)
-  function archExt(kind) { return kind === "diamond" ? [-400, 400] : kind === "hex" || kind === "oval" || kind === "rect" || kind === "circle" ? [-370, 370] : [-370, 340]; }
+  function archExt(kind) { return kind === "none" ? [0,0] : kind === "diamond" ? [-400, 400] : kind === "burst" ? [-390,390] : kind === "hex" || kind === "oval" || kind === "rect" || kind === "circle" || kind === "rounded" || kind === "cut" || kind === "angled" ? [-370, 370] : [-370, 340]; }
   // ল্যান্ডস্কেপে আকৃতিটা হিরোর ব্যান্ডের (ওপরের সীমা ↔ ক্যাপশনের ওপর) ভেতরে আঁটিয়ে দেয়
   function fitArch(hs) {
     const [a, b] = archExt(S.arch);
@@ -256,6 +276,7 @@
     return { sc, cy };
   }
   function arch(back, cx, cy, sc = 1) {
+    if (S.arch === "none") return () => {};
     const g = svgRoot(back);
     const d = archPath(S.arch);
     const grp = sv("g", { transform: `translate(${cx} ${cy}) scale(${sc})` }, g);
@@ -515,6 +536,10 @@
       background: `repeating-conic-gradient(from 0deg, ${rgba(C.accent, 0.26)} 0deg 5deg, ${rgba(C.accent, 0)} 5deg 12deg)`,
       WebkitMaskImage: "radial-gradient(circle, #000 12%, rgba(0,0,0,0.5) 40%, transparent 66%)", maskImage: "radial-gradient(circle, #000 12%, rgba(0,0,0,0.5) 40%, transparent 66%)" });
     if (S.rays === "none") rays.style.display = "none";
+    if (S.rays === "rings" || S.rays === "orbit") rays.style.background = "none";
+    else if (S.rays === "beam") rays.style.background = `repeating-conic-gradient(from -12deg, ${rgba(C.accent,0.15)} 0deg 13deg, transparent 13deg 38deg)`;
+    else if (S.rays === "subtle") rays.style.background = `repeating-conic-gradient(from 0deg, ${rgba(C.accent,0.08)} 0deg 2deg, transparent 2deg 18deg)`;
+    else if (S.rays === "radial") rays.style.background = `repeating-conic-gradient(from 0deg, ${rgba(C.accent,0.16)} 0deg 0.7deg, transparent 0.7deg 9deg)`;
     const topT = G.wide ? 250 : lk(72, 200);
     const t1 = el("div", "abs", L.f, { top: topT + "px", textAlign: "center" });
     place(t1, z);

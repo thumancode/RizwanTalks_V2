@@ -125,6 +125,73 @@
         return { g, cx, cy, rot, ph: r() * 6 };
       });
       ups.push((t) => gs.forEach((o) => o.g.setAttribute("transform", `rotate(${Math.sin(t * 0.25 + o.ph) * 4} ${o.cx} ${o.cy})`)));
+    } else if (["grain","orbit","rings","diagonal","crosshatch","contour","paper","halftone","wave","topographic","starfield","checker","woven","ripple","facets","radial","mesh","tile","crystal","wash","metal","stars","confetti","blobs","rain","engrave","spray","enso","sunsetgrid"].includes(P)) {
+      // Missing theme patterns: vector-only, deterministic and deliberately quiet.
+      const low = ["grain","paper","wash","mesh","spray"].includes(P) ? 0.075 : 0.13;
+      if (P === "mesh" || P === "wash" || P === "blobs") {
+        const r = rng(P === "mesh" ? 801 : P === "wash" ? 802 : 803);
+        const nodes = Array.from({length: P === "blobs" ? 8 : 6}, (_,i) => {
+          const size = (P === "mesh" ? 0.22 : 0.16) * Math.min(W,H) * (0.7+r()*0.7);
+          const d = el("div","abs",bgL,{width:size+"px",height:size+"px",borderRadius:"50%",background:`radial-gradient(circle, ${rgba(i%2?C.accent2:C.accent, P==="wash"?0.12:0.18)} 0%, ${rgba(C.accentL,0.04)} 42%, transparent 72%)`,filter:P==="wash"?"blur(16px)":"blur(5px)"});
+          return {d,x:r()*W,y:r()*H,size,ph:r()*6.28,sp:0.15+r()*0.12};
+        });
+        ups.push(t=>nodes.forEach(o=>{o.d.style.left=(o.x+18*Math.sin(t*o.sp+o.ph)-o.size/2)+"px";o.d.style.top=(o.y+14*Math.cos(t*o.sp+o.ph)-o.size/2)+"px";}));
+      } else if (P === "sunsetgrid") {
+        const g=sv("g",{stroke:GOLD,"stroke-width":2,fill:"none",opacity:0.28},bgSvg);
+        for(let i=0;i<12;i++) sv("path",{d:`M${W*.5-i*W*.055} ${H*.52}L${W*.5-i*W*.14} ${H} M${W*.5+i*W*.055} ${H*.52}L${W*.5+i*W*.14} ${H}`,},g);
+        for(let i=0;i<9;i++){const y=H*.55+i*i*H*.006;sv("line",{x1:W*.08,y1:y,x2:W*.92,y2:y},g);}
+        const sun=sv("circle",{cx:W*.5,cy:H*.34,r:Math.min(W,H)*.11,fill:rgba(C.accent,0.12),stroke:GOLD,"stroke-width":2},bgSvg);
+        ups.push(t=>sun.setAttribute("r",Math.min(W,H)*(.105+.006*Math.sin(t*.5))));
+      } else {
+        const r=rng(900+P.length*13), g=sv("g",{fill:"none",stroke:GOLD,"stroke-width":1.3,opacity:low},bgSvg);
+        const add=(d,attrs={})=>sv("path",Object.assign({d},attrs),g);
+        if(P==="orbit"||P==="rings"||P==="ripple"){
+          const centers=P==="orbit"?[[W*.3,H*.32],[W*.72,H*.7]]:P==="ripple"?[[W*.25,H*.4],[W*.68,H*.62]]:[[W*.28,H*.3],[W*.75,H*.72]];
+          centers.forEach(([cx,cy],j)=>{for(let i=1;i<=9;i++){let rx=i*(P==="orbit"?26:22),ry=rx*(P==="orbit"?.56:1);add(`M${cx-rx} ${cy}a${rx} ${ry} 0 1 0 ${rx*2} 0a${rx} ${ry} 0 1 0 ${-rx*2} 0`,{opacity:.65});}if(P==="orbit")for(let k=0;k<4;k++)sv("circle",{cx:cx+Math.cos(k*1.57)*150,cy:cy+Math.sin(k*1.57)*85,r:3,fill:GOLD,opacity:.6},g);});
+        } else if(P==="diagonal"||P==="engrave"||P==="crosshatch"||P==="woven"||P==="checker"||P==="tile"||P==="metal"||P==="halftone"||P==="spray"||P==="grain"||P==="paper"||P==="confetti"||P==="crystal"||P==="facets"||P==="starfield"||P==="stars"||P==="rain"||P==="radial") {
+          const step=P==="halftone"?24:P==="grain"||P==="spray"?15:P==="metal"?7:P==="woven"?28:P==="checker"||P==="tile"?64:36;
+          if(P==="radial"){for(let i=0;i<64;i++){let a=i*Math.PI/32;add(`M${W*.5} ${H*.42}L${W*.5+Math.cos(a)*DIAG} ${H*.42+Math.sin(a)*DIAG}`);}}
+          else if(P==="starfield"||P==="stars"||P==="confetti"||P==="grain"||P==="spray"||P==="paper"||P==="rain"){
+            for(let i=0;i<(P==="grain"?700:P==="spray"?320:P==="paper"?180:P==="starfield"?110:P==="stars"?55:P==="confetti"?48:85);i++){let x=r()*W,y=r()*H,sz=P==="confetti"?3+r()*7:P==="rain"?1+r()*2:P==="starfield"||P==="stars"?1+r()*3:0.6+r()*1.6;
+              if(P==="rain")add(`M${x} ${y}l${-sz} ${sz*5}`,{opacity:.45});
+              else if(P==="confetti")sv("rect",{x,y,width:sz*1.8,height:sz,fill:C.palette[i%C.palette.length],opacity:.45,transform:`rotate(${r()*180} ${x} ${y})`},g);
+              else if(P==="starfield"||P==="stars")add(`M${x} ${y-sz}l${sz*.3} ${sz*.7} ${sz*.7} ${sz*.3} ${-sz*.7} ${sz*.3} ${-sz*.3} ${sz*.7} ${-sz*.3} ${-sz*.7} ${-sz*.7} ${-sz*.3} ${sz*.7} ${-sz*.3}Z`,{opacity:.6});
+              else sv("circle",{cx:x,cy:y,r:sz,fill:P==="paper"?C.accentL:GOLD,opacity:P==="grain"?.28:.32},g);
+            }
+          } else {
+            for(let x=-H;x<W+H;x+=step){
+              if(P==="diagonal"||P==="engrave")add(`M${x} 0L${x+H} ${H}`,{opacity:P==="engrave"?.8:.6});
+              else if(P==="crosshatch") {add(`M${x} 0L${x+H} ${H}`);add(`M${x+H} 0L${x} ${H}`);}
+              else if(P==="woven"){sv("rect",{x:x%step,y:0,width:step*.5,height:H,fill:GOLD,opacity:.08},g);sv("rect",{x:0,y:x%step,width:W,height:step*.5,fill:C.accent2,opacity:.07},g);}
+              else if(P==="checker"||P==="tile"){for(let y=0;y<H;y+=step)sv("rect",{x,y,width:step,height:step,fill:((Math.round(x/step)+Math.round(y/step))%2)?GOLD:C.accent2,opacity:P==="checker"?.045:.025},g);}
+              else if(P==="metal")add(`M${x} 0V${H}`,{opacity:.22});
+              else if(P==="halftone"){for(let y=0;y<H;y+=step){let rr=1.2+3.5*(.5+.5*Math.sin(x*.008+y*.004));sv("circle",{cx:x,cy:y,r:rr,fill:GOLD,opacity:.3},g);}}
+              else if(P==="crystal"||P==="facets")add(`M${x} 0L${x+step*1.7} ${H*.42}L${x+step*.6} ${H}Z`,{fill:rgba(C.accent,0.035),opacity:.55});
+            }
+          }
+        } else if(P==="enso") {
+          // brush circles: open, slightly spiralled arcs with a gap, thicker strokes
+          [[W*.26,H*.3,1],[W*.76,H*.72,-1]].forEach(([cx,cy,dir],j)=>{
+            for(let i=0;i<3;i++){
+              const R=Math.min(W,H)*(.16+i*.055), a0=(j*1.3+i*.5)*dir, span=Math.PI*(1.62-i*.08);
+              let d="";
+              for(let k=0;k<=60;k++){const th=a0+dir*(k/60)*span, rr=R*(1+.05*(k/60));d+=(k?"L":"M")+(cx+rr*Math.cos(th)).toFixed(1)+" "+(cy+rr*Math.sin(th)).toFixed(1);}
+              add(d,{opacity:.55-i*.12,"stroke-width":5-i,"stroke-linecap":"round"});
+            }
+          });
+        } else if(P==="contour"||P==="topographic"||P==="wave") {
+          if(P==="wave"){
+            // smooth, evenly spaced single-frequency waves
+            for(let j=0;j<16;j++){let y=H*(.1+j*.055),d=`M0 ${y}`;for(let x=0;x<=W;x+=20)d+=`L${x} ${y+Math.sin(x*.005+j*.4)*30}`;add(d,{opacity:.5});}
+          } else if(P==="topographic"){
+            // dense, irregular map-like lines, finer stroke
+            for(let j=0;j<36;j++){let y=H*(.06+j*.026),d=`M0 ${y}`;for(let x=0;x<=W;x+=16)d+=`L${x} ${y+Math.sin(x*.004+j*.35)*34+Math.sin(x*.011+j*1.7)*14+Math.sin(x*.027+j)*5}`;add(d,{opacity:.32,"stroke-width":.9});}
+          } else {
+            for(let j=0;j<22;j++){let y=H*(.12+j*.036),d=`M0 ${y}`;for(let x=0;x<=W;x+=20)d+=`L${x} ${y+Math.sin(x*.006+j*.55)*22+Math.sin(x*.013+j)*8}`;add(d,{opacity:.5});}
+          }
+        }
+        if(P==="checker"||P==="tile"||P==="woven") ups.push(t=>g.setAttribute("transform",`translate(${Math.sin(t*.12)*3} ${Math.cos(t*.1)*3})`));
+      }
     }
     // প্রান্ত অন্ধকার/হালকা (vignette)
     el("div", "layer", bgL, { background: `radial-gradient(ellipse at 50% 45%, rgba(${C.vig},0) 40%, rgba(${C.vig},${TH_DARK() ? 0.45 : 0.20}) 100%)` });
@@ -205,6 +272,18 @@
       const d2 = `M${mm + 18} ${H - mm - 18}V${mm + r + 8}A${(W - 2 * mm - 36) / 2} ${r - 10} 0 0 1 ${W - mm - 18} ${mm + r + 8}V${H - mm - 18}Z`;
       const b = stroke(sv("path", { d: d2 }, sv0), 1.2, GOLD_L, 0.75);
       ups.push((t) => { const p = prog(t, 0.1, 1.7, E.inOutCubic); drawOn(a, p); drawOn(b, p); });
+    } else if (["line","thin","editorial","rounded","technical","corner"].includes(kind)) {
+      const m = kind === "thin" ? 28 : kind === "rounded" ? 42 : 34;
+      const x0=m, y0=m, x1=W-m, y1=H-m;
+      const paths=[];
+      const addPath=(d,sw=2,op=.8)=>{const a=stroke(sv("path",{d},sv0),sw,GOLD,op);paths.push(a);return a;};
+      if(kind==="line") addPath(`M${x0} ${y0}H${x1}V${y1}H${x0}Z`,3,.8);
+      else if(kind==="thin") addPath(`M${x0} ${y0}H${x1}V${y1}H${x0}Z`,1,.7);
+      else if(kind==="rounded") {const a=stroke(sv("rect",{x:x0,y:y0,width:W-2*m,height:H-2*m,rx:58},sv0),3,GOLD,.85);paths.push(a);}
+      else if(kind==="editorial") {addPath(`M${x0} ${y0}H${x1}`,2,.8);addPath(`M${x0} ${y0+8}H${x0+W*.18}`,1,.65);addPath(`M${x0} ${y1}H${x1}`,2,.8);addPath(`M${x1-W*.18} ${y1-8}H${x1}`,1,.65);}
+      else if(kind==="technical") {addPath(`M${x0} ${y0}H${x1}V${y1}H${x0}Z`,1.4,.65);for(let x=x0;x<=x1;x+=Math.max(24,W/30)) {sv("line",{x1:x,y1:y0,x2:x,y2:y0+10,stroke:GOLD,"stroke-width":1.2,opacity:.75},sv0);sv("line",{x1:x,y1:y1-10,x2:x,y2:y1,stroke:GOLD,"stroke-width":1.2,opacity:.75},sv0);}for(let y=y0;y<=y1;y+=Math.max(24,H/30)){sv("line",{x1:x0,y1:y,x2:x0+10,y2:y,stroke:GOLD,"stroke-width":1.2,opacity:.75},sv0);sv("line",{x1:x1-10,y1:y,x2:x1,y2:y,stroke:GOLD,"stroke-width":1.2,opacity:.75},sv0);}}
+      else {const L=100;[[x0,y0,1,1],[x1,y0,-1,1],[x0,y1,1,-1],[x1,y1,-1,-1]].forEach(([x,y,sx,sy])=>addPath(`M${x+sx*L} ${y}H${x}V${y+sy*L}`,4,.9));}
+      ups.push(t=>paths.forEach((a,i)=>drawOn(a,prog(t,.08+i*.08,1.25,E.inOutCubic))));
     }
     // উপরে প্রগ্রেস বার
     const progBar = el("div", "abs", chromeL, { left: "0px", top: kind === "bar" ? "20px" : "0px", height: kind === "bar" ? "8px" : "7px", width: "0px", background: kind === "bar" ? C.accent2 : `linear-gradient(90deg, ${GOLD_L}, ${GOLD}, ${GOLD_D})`, zIndex: 3 });
@@ -242,7 +321,7 @@
     if (kind === "none") return () => { fx.getContext("2d").clearRect(0, 0, fx.width, fx.height); };
     const ctx = fx.getContext("2d");
     const pr = rng(11);
-    const cnt = { spark: 48, ember: 54, snow: 44, bubble: 26, square: 40, dot: 56 }[kind] || 40;
+    const cnt = { spark: 48, ember: 54, snow: 44, bubble: 26, square: 40, dot: 56, dust: 92, star: 34, confetti: 42, leaf: 28, drop: 30, diamond: 32 }[kind] || 40;
     const u = W / 1080;
     const pal = C.palette;
     const parts = Array.from({ length: cnt }, () => ({
@@ -260,7 +339,20 @@
         const a = 0.25 + 0.55 * (0.5 + 0.5 * Math.sin(t * p.tw * 2 + p.ph));
         ctx.save();
         ctx.translate(x, y);
-        if (kind === "spark") {
+        if (kind === "star") {
+          ctx.globalAlpha = a * 0.75; ctx.fillStyle = p.c; const R=p.r*2.1;
+          ctx.beginPath(); for(let j=0;j<10;j++){const ang=-Math.PI/2+j*Math.PI/5,rr=j%2?R*.42:R;if(j===0)ctx.moveTo(Math.cos(ang)*rr,Math.sin(ang)*rr);else ctx.lineTo(Math.cos(ang)*rr,Math.sin(ang)*rr);} ctx.closePath();ctx.fill();
+        } else if (kind === "confetti") {
+          ctx.globalAlpha=a*.7;ctx.fillStyle=p.c;ctx.rotate(t*.8+p.ph);ctx.fillRect(-p.r*1.6,-p.r*.55,p.r*3.2,p.r*1.1);
+        } else if (kind === "leaf") {
+          ctx.globalAlpha=a*.65;ctx.fillStyle=p.c;ctx.rotate(Math.sin(t*.4+p.ph)*.7);ctx.beginPath();ctx.ellipse(0,0,p.r*1.5,p.r*.7,.6,0,6.3);ctx.fill();ctx.strokeStyle=C.accentL;ctx.lineWidth=u;ctx.beginPath();ctx.moveTo(-p.r,0);ctx.lineTo(p.r,0);ctx.stroke();
+        } else if (kind === "drop") {
+          ctx.globalAlpha=a*.7;ctx.fillStyle=p.c;ctx.beginPath();ctx.moveTo(0,-p.r*1.8);ctx.quadraticCurveTo(p.r*1.8,0,0,p.r*1.8);ctx.quadraticCurveTo(-p.r*1.8,0,0,-p.r*1.8);ctx.fill();
+        } else if (kind === "diamond") {
+          ctx.globalAlpha=a*.7;ctx.fillStyle=p.c;ctx.rotate(Math.PI/4+t*.15);ctx.fillRect(-p.r,-p.r,p.r*2,p.r*2);
+        } else if (kind === "dust") {
+          ctx.globalAlpha=a*.35;ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(0,0,p.r*.55,0,6.3);ctx.fill();
+        } else if (kind === "spark") {
           ctx.globalAlpha = a * 0.8; ctx.fillStyle = p.r > 4 * u ? C.accentL : C.accent;
           const R = p.r * 1.6;
           ctx.beginPath(); ctx.moveTo(0, -R); ctx.quadraticCurveTo(R * 0.16, -R * 0.16, R, 0); ctx.quadraticCurveTo(R * 0.16, R * 0.16, 0, R); ctx.quadraticCurveTo(-R * 0.16, R * 0.16, -R, 0); ctx.quadraticCurveTo(-R * 0.16, -R * 0.16, 0, -R); ctx.fill();

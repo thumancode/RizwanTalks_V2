@@ -38,6 +38,16 @@ body[data-chip="outline"] .chip { border-radius: 16px; background: rgba(0,0,0,0.
 body[data-chip="block"] .chip { border-radius: 10px; background: var(--accent); color: var(--onAccent); border: 3px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); }
 body[data-chip="tag"] .chip { border-radius: 6px; background: var(--chip); border: 0; border-left: 12px solid var(--accent); box-shadow: 0 10px 24px rgba(0,0,0,0.16); padding-left: 24px; }
 body[data-chip="block"] .chip .dot { box-shadow: 0 0 0 3px var(--ink); }
+body[data-chip="solid"] .chip { background: var(--accent); color: var(--onAccent); border-color: var(--accentD); box-shadow: 0 8px 18px rgba(0,0,0,.14); }
+body[data-chip="paper"] .chip { background: var(--chip); border: 0; border-radius: 4px; box-shadow: 0 5px 12px rgba(0,0,0,.12); }
+body[data-chip="none"] .chip { background: transparent; border: 0; border-radius: 0; box-shadow: none; padding: 8px 12px; }
+body[data-chip="none"] .chip .dot { box-shadow: none; }
+body[data-chip="solid"] .card { background: var(--accent); color: var(--onAccent); border-color: var(--accentD); box-shadow: 0 10px 24px rgba(0,0,0,.15); }
+body[data-chip="paper"] .card { background: var(--chip); border: 1px solid rgba(0,0,0,.08); border-radius: 4px; box-shadow: 0 8px 22px rgba(0,0,0,.12); }
+body[data-chip="none"] .card { background: transparent; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); box-shadow: none; }
+body[data-chip="solid"] .stepnum { border-radius: 8px; background: var(--accent); }
+body[data-chip="paper"] .stepnum { border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,.12); }
+body[data-chip="none"] .stepnum { background: transparent; color: var(--ink); box-shadow: none; border: 1px solid var(--accent); }
 
 /* কার্ড (তুলনা সিন) ও ধাপের সংখ্যা */
 .card { position: absolute; border-radius: 28px; background: var(--chip); border: 3px solid var(--accent); box-shadow: 0 18px 44px rgba(0,0,0,0.2); overflow: hidden; }
