@@ -196,3 +196,21 @@ Workflow-এর `theme` ইনপুটে `all` বেছে নিলে ২�
 - Landscape intro hero is reduced and shifted upward to reduce subtitle/product overlap; caption/footer safe area adjusted.
 - Select `theme: all` in GitHub Actions to plan all 2296 themes.
 - First validate with `ratios: 16x9` and `quality: preview`; full render across all themes and ratios can be very large.
+
+
+## ২৯৬ থিমের style value registry
+
+`source/tools/audit_styles.py` চালিয়ে `themes.json`-এর ব্যবহৃত style value যাচাই করুন। অজানা value এলে স্ক্রিপ্ট non-zero exit করবে। নতুন থিমে নিচের তালিকার বাইরে কোনো value ব্যবহার করবেন না।
+
+| Field | Supported values |
+|---|---|
+| `pattern` | `arabesque`, `arcs`, `aurora`, `bokeh`, `burst`, `deco`, `dots`, `grid`, `scan`, `stripes`, `topo`, `waves`, `none`, `grain`, `orbit`, `rings`, `diagonal`, `crosshatch`, `contour`, `paper`, `halftone`, `wave`, `topographic`, `starfield`, `checker`, `woven`, `ripple`, `facets`, `radial`, `mesh`, `tile`, `crystal`, `wash`, `metal`, `stars`, `confetti`, `blobs`, `rain`, `engrave`, `spray`, `enso`, `sunsetgrid` |
+| `frame` | `arch`, `bar`, `brackets`, `deco`, `double`, `neon`, `none`, `ornate`, `plain`, `round`, `ticket`, `line`, `thin`, `editorial`, `rounded`, `technical`, `corner` |
+| `orn` | `circle`, `diamond`, `drop`, `hex`, `leaf`, `moon`, `plus`, `spark`, `square`, `sun`, `tri`, `star`, `dot`, `wave`, `none` |
+| `chip` | `glass`, `outline`, `block`, `tag`, `pill`, `solid`, `paper`, `none` |
+| `rule` | `bar`, `dots`, `line`, `orn`, `double`, `dot`, `none` |
+| `rays` | `none`, `sunburst`, `conic`, `rings`, `beam`, `orbit`, `subtle`, `radial` |
+| `particles` | `spark`, `ember`, `snow`, `bubble`, `square`, `dot`, `none`, `dust`, `star`, `confetti`, `leaf`, `drop`, `diamond` |
+| `arch` | `arch`, `hex`, `oval`, `circle`, `rect`, `diamond`, `none`, `rounded`, `cut`, `angled`, `burst` |
+| `motion` | `smooth`, `snappy`, `float`, `kinetic`, `parallax`, `stagger`, `pulse`, `rise`, `snap`, `drift`, `orbit`, `reveal`, `slow` |
+
